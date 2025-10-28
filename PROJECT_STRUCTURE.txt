@@ -1,0 +1,55 @@
+HobbyMatch Project Structure
+============================
+
+hobby-match/
+│
+├── backend/                          # FastAPI Backend
+│   ├── app/
+│   │   ├── api/                      # API endpoints
+│   │   │   ├── deps.py              # Dependencies (auth, db)
+│   │   │   └── v1/
+│   │   │       ├── auth.py          # ✅ Authentication
+│   │   │       ├── users.py         # ✅ User endpoints
+│   │   │       └── interests.py     # ✅ Interests endpoints
+│   │   ├── models/                   # ✅ SQLAlchemy models
+│   │   │   ├── user.py
+│   │   │   ├── interest.py
+│   │   │   ├── swipe.py
+│   │   │   ├── match.py
+│   │   │   ├── message.py
+│   │   │   ├── meeting.py
+│   │   │   ├── payment.py
+│   │   │   └── report.py
+│   │   ├── schemas/                  # ✅ Pydantic schemas
+│   │   ├── utils/                    # ✅ Utilities
+│   │   ├── main.py                  # ✅ FastAPI app
+│   │   ├── config.py                # ✅ Configuration
+│   │   └── database.py              # ✅ Database setup
+│   ├── requirements.txt             # ✅ Dependencies
+│   └── README.md                    # ✅ Documentation
+│
+├── frontend/                        # React Frontend
+│   ├── src/
+│   │   ├── api/                     # ✅ API clients
+│   │   ├── components/              # Component folders created
+│   │   ├── pages/                   # ✅ Basic pages
+│   │   ├── hooks/                   # ✅ useTelegramWebApp
+│   │   ├── store/                   # ✅ userStore
+│   │   ├── types/                   # ✅ TypeScript types
+│   │   ├── App.tsx                  # ✅ Main App
+│   │   └── index.css                # ✅ Global styles
+│   ├── package.json                 # ✅ Dependencies
+│   ├── tailwind.config.js          # ✅ Tailwind config
+│   └── README.md                    # ✅ Documentation
+│
+├── docs/                            # ✅ Documentation
+│   ├── SUPABASE_SETUP.md           # ✅ Database setup
+│   └── TELEGRAM_SETUP.md           # ✅ Bot setup
+│
+├── README.md                        # ✅ Main README
+├── SETUP_GUIDE.md                   # ✅ Complete guide
+├── QUICKSTART.md                    # ✅ Quick start
+└── PROJECT_STRUCTURE.txt            # ✅ This file
+
+Status: MVP Foundation Complete ✅
+Next: Discovery (swipe), Matches, Chat
