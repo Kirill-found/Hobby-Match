@@ -245,7 +245,12 @@ export default function ChatPage() {
                         {formatTime(message.created_at)}
                       </span>
                       {isMyMessage && (
-                        <span style={{ fontSize: '14px', color: message.is_read ? '#4A9DFF' : 'rgba(255, 255, 255, 0.7)' }}>
+                        <span style={{
+                          fontSize: '16px',
+                          color: message.is_read ? '#4A9DFF' : 'rgba(255, 255, 255, 0.7)',
+                          fontWeight: message.is_read ? '600' : '400',
+                          letterSpacing: message.is_read ? '-2px' : '0'
+                        }}>
                           {message.is_read ? '✓✓' : '✓'}
                         </span>
                       )}

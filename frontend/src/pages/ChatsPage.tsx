@@ -203,9 +203,14 @@ export default function ChatsPage() {
                           }}
                         >
                           {conversation.is_last_message_from_me && (
-                            <span style={{ marginRight: '4px' }}>
-                              {/* Checkmarks for read status */}
-                              <span style={{ color: '#4A9DFF' }}>✓✓</span>
+                            <span style={{
+                              marginRight: '4px',
+                              color: '#4A9DFF',
+                              fontWeight: '600',
+                              letterSpacing: '-2px',
+                              fontSize: '14px'
+                            }}>
+                              ✓✓
                             </span>
                           )}
                           {conversation.last_message}
