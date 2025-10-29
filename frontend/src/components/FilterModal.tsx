@@ -125,37 +125,78 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
             <label style={{ fontSize: '16px', fontWeight: '600', color: '#FFFFFF', marginBottom: '12px', display: 'block' }}>
               Возраст: {minAge} - {maxAge} лет
             </label>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div style={{ position: 'relative', height: '40px' }}>
+              {/* Track background */}
+              <div style={{
+                position: 'absolute',
+                top: '17px',
+                left: 0,
+                right: 0,
+                height: '6px',
+                borderRadius: '3px',
+                backgroundColor: '#2A2A2A',
+              }} />
+
+              {/* Active track (between thumbs) */}
+              <div style={{
+                position: 'absolute',
+                top: '17px',
+                left: `${((minAge - 18) / 42) * 100}%`,
+                right: `${100 - ((maxAge - 18) / 42) * 100}%`,
+                height: '6px',
+                borderRadius: '3px',
+                backgroundColor: '#FF4458',
+              }} />
+
+              {/* Min slider */}
               <input
                 type="range"
                 min="18"
                 max="60"
                 value={minAge}
-                onChange={(e) => setMinAge(Math.min(Number(e.target.value), maxAge - 1))}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value < maxAge) {
+                    setMinAge(value);
+                  }
+                }}
                 style={{
-                  flex: 1,
-                  height: '6px',
-                  borderRadius: '3px',
-                  outline: 'none',
-                  background: `linear-gradient(to right, #FF4458 0%, #FF4458 ${((minAge - 18) / 42) * 100}%, #2A2A2A ${((minAge - 18) / 42) * 100}%, #2A2A2A 100%)`,
+                  position: 'absolute',
+                  width: '100%',
+                  height: '40px',
+                  top: 0,
+                  left: 0,
+                  background: 'transparent',
+                  pointerEvents: 'all',
                   WebkitAppearance: 'none',
                   appearance: 'none',
+                  zIndex: minAge > maxAge - 5 ? 5 : 3,
                 }}
               />
+
+              {/* Max slider */}
               <input
                 type="range"
                 min="18"
                 max="60"
                 value={maxAge}
-                onChange={(e) => setMaxAge(Math.max(Number(e.target.value), minAge + 1))}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value > minAge) {
+                    setMaxAge(value);
+                  }
+                }}
                 style={{
-                  flex: 1,
-                  height: '6px',
-                  borderRadius: '3px',
-                  outline: 'none',
-                  background: `linear-gradient(to right, #FF4458 0%, #FF4458 ${((maxAge - 18) / 42) * 100}%, #2A2A2A ${((maxAge - 18) / 42) * 100}%, #2A2A2A 100%)`,
+                  position: 'absolute',
+                  width: '100%',
+                  height: '40px',
+                  top: 0,
+                  left: 0,
+                  background: 'transparent',
+                  pointerEvents: 'all',
                   WebkitAppearance: 'none',
                   appearance: 'none',
+                  zIndex: 4,
                 }}
               />
             </div>
@@ -287,6 +328,8 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
           background: #FFFFFF;
           cursor: pointer;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          position: relative;
+          z-index: 10;
         }
         input[type="range"]::-moz-range-thumb {
           width: 20px;
@@ -296,6 +339,16 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
           cursor: pointer;
           border: none;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          position: relative;
+          z-index: 10;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+          background: transparent;
+          height: 6px;
+        }
+        input[type="range"]::-moz-range-track {
+          background: transparent;
+          height: 6px;
         }
       `}</style>
     </div>
