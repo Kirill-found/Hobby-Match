@@ -205,6 +205,86 @@ def get_all_users(db: Session = Depends(get_db)):
     }
 
 
+@router.post("/create-test-match")
+def create_test_match(
+    user1_id: int,
+    user2_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Create a mutual like between two users for testing matching
+    WARNING: Only use in development!
+    """
+    from app.models.swipe import Swipe
+    from app.models.match import Match
+    from datetime import datetime
+
+    # Check if users exist
+    user1 = db.query(User).filter(User.id == user1_id).first()
+    user2 = db.query(User).filter(User.id == user2_id).first()
+
+    if not user1 or not user2:
+        return {"error": "One or both users not found"}
+
+    # Create swipe from user1 to user2 (if doesn't exist)
+    swipe1 = db.query(Swipe).filter(
+        Swipe.user_id == user1_id,
+        Swipe.target_user_id == user2_id
+    ).first()
+
+    if not swipe1:
+        swipe1 = Swipe(
+            user_id=user1_id,
+            target_user_id=user2_id,
+            is_like=True,
+            swiped_at=datetime.utcnow()
+        )
+        db.add(swipe1)
+
+    # Create swipe from user2 to user1 (reverse)
+    swipe2 = db.query(Swipe).filter(
+        Swipe.user_id == user2_id,
+        Swipe.target_user_id == user1_id
+    ).first()
+
+    if not swipe2:
+        swipe2 = Swipe(
+            user_id=user2_id,
+            target_user_id=user1_id,
+            is_like=True,
+            swiped_at=datetime.utcnow()
+        )
+        db.add(swipe2)
+
+    # Create match (if doesn't exist)
+    from sqlalchemy import or_, and_
+    existing_match = db.query(Match).filter(
+        or_(
+            and_(Match.user1_id == user1_id, Match.user2_id == user2_id),
+            and_(Match.user1_id == user2_id, Match.user2_id == user1_id)
+        )
+    ).first()
+
+    if not existing_match:
+        match = Match(
+            user1_id=user1_id,
+            user2_id=user2_id,
+            matched_at=datetime.utcnow()
+        )
+        db.add(match)
+
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Created match between {user1.first_name} and {user2.first_name}",
+        "match": {
+            "user1": {"id": user1.id, "name": user1.first_name},
+            "user2": {"id": user2.id, "name": user2.first_name}
+        }
+    }
+
+
 @router.post("/update-user-preferences")
 def update_user_preferences(
     telegram_id: int,
