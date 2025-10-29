@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
+import { authApi } from '../api/auth';
 
 // Onboarding steps
 import Step1BasicInfo from '../components/onboarding/Step1BasicInfo';
@@ -54,11 +55,20 @@ export default function OnboardingPage() {
 
   const handleComplete = async () => {
     try {
-      // TODO: Save profile to backend
-      await updateUser({ ...formData, onboarding_completed: true });
+      // First, update the profile with all form data
+      await authApi.updateProfile(formData);
+
+      // Then mark onboarding as completed
+      await authApi.completeOnboarding();
+
+      // Update local state
+      updateUser({ ...formData, onboarding_completed: true });
+
+      // Navigate to discovery
       navigate('/discovery');
     } catch (error) {
       console.error('Failed to complete onboarding:', error);
+      alert('Не удалось сохранить профиль. Попробуйте еще раз.');
     }
   };
 

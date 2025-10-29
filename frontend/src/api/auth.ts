@@ -15,4 +15,16 @@ export const authApi = {
     const response = await apiClient.get<User>('/auth/me');
     return response.data;
   },
+
+  // Update user profile
+  updateProfile: async (updates: Partial<User>): Promise<User> => {
+    const response = await apiClient.put<User>('/users/profile', updates);
+    return response.data;
+  },
+
+  // Complete onboarding
+  completeOnboarding: async (): Promise<{ message: string; user: { onboarding_completed: boolean } }> => {
+    const response = await apiClient.post('/users/onboarding/complete');
+    return response.data;
+  },
 };
