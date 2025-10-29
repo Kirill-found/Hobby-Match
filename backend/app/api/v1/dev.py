@@ -203,3 +203,37 @@ def get_all_users(db: Session = Depends(get_db)):
         "total_users": len(users),
         "users": user_list
     }
+
+
+@router.post("/update-user-preferences")
+def update_user_preferences(
+    telegram_id: int,
+    min_age: int = 18,
+    max_age: int = 50,
+    partner_gender_preference: str = "any",
+    db: Session = Depends(get_db)
+):
+    """
+    Update user preferences for testing
+    WARNING: Only use in development!
+    """
+    user = db.query(User).filter(User.telegram_id == telegram_id).first()
+
+    if not user:
+        return {"error": "User not found"}
+
+    user.min_age = min_age
+    user.max_age = max_age
+    user.partner_gender_preference = partner_gender_preference
+
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Updated preferences for {user.first_name}",
+        "new_preferences": {
+            "min_age": user.min_age,
+            "max_age": user.max_age,
+            "partner_gender_preference": user.partner_gender_preference
+        }
+    }
