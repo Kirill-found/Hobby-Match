@@ -245,14 +245,18 @@ export default function ChatPage() {
                         {formatTime(message.created_at)}
                       </span>
                       {isMyMessage && (
-                        <span style={{
-                          fontSize: '16px',
-                          color: message.is_read ? '#4A9DFF' : 'rgba(255, 255, 255, 0.7)',
-                          fontWeight: message.is_read ? '600' : '400',
-                          letterSpacing: message.is_read ? '-2px' : '0'
-                        }}>
-                          {message.is_read ? '✓✓' : '✓'}
-                        </span>
+                        message.is_read ? (
+                          // Double checkmark SVG for read messages
+                          <svg width="18" height="10" viewBox="0 0 18 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 5L3.5 7.5L7 4" stroke="#4A9DFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M5.5 5L8 7.5L11.5 4" stroke="#4A9DFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        ) : (
+                          // Single checkmark for sent messages
+                          <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 5L4 8L11 1" stroke="rgba(255, 255, 255, 0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )
                       )}
                     </div>
                   </div>

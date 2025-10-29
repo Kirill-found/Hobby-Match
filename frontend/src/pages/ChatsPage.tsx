@@ -203,14 +203,11 @@ export default function ChatsPage() {
                           }}
                         >
                           {conversation.is_last_message_from_me && (
-                            <span style={{
-                              marginRight: '4px',
-                              color: '#4A9DFF',
-                              fontWeight: '600',
-                              letterSpacing: '-2px',
-                              fontSize: '14px'
-                            }}>
-                              ✓✓
+                            <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}>
+                              <svg width="16" height="9" viewBox="0 0 18 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L3.5 7.5L7 4" stroke="#4A9DFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M5.5 5L8 7.5L11.5 4" stroke="#4A9DFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
                             </span>
                           )}
                           {conversation.last_message}
