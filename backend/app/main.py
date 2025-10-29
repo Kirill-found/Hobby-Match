@@ -233,12 +233,13 @@ def seed_interests_endpoint():
 
 
 # Import and include routers
-from app.api.v1 import auth, users, interests, discovery
+from app.api.v1 import auth, users, interests, discovery, dev
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(interests.router, prefix="/api/v1/interests", tags=["interests"])
 app.include_router(discovery.router, prefix="/api/v1/discovery", tags=["discovery"])
+app.include_router(dev.router, prefix="/api/v1/dev", tags=["development"])
 
 # TODO: Add more routers as they are created
 # app.include_router(matches.router, prefix="/api/v1/matches", tags=["matches"])
