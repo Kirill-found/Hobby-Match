@@ -58,6 +58,30 @@ def create_tables():
         return {"error": str(e), "traceback": traceback.format_exc()}
 
 
+@app.get("/reset-onboarding")
+def reset_onboarding():
+    """
+    Reset all users' onboarding status for testing
+    TODO: Remove this endpoint in production
+    """
+    from app.database import SessionLocal
+    from app.models.user import User
+    import traceback
+
+    db = SessionLocal()
+    try:
+        users = db.query(User).all()
+        for user in users:
+            user.onboarding_completed = False
+        db.commit()
+        return {"message": f"Reset onboarding for {len(users)} users"}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
+
+
 @app.get("/seed/interests")
 def seed_interests_endpoint():
     """
