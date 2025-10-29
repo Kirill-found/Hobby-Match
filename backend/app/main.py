@@ -90,6 +90,55 @@ def create_tables():
         return {"error": str(e), "traceback": traceback.format_exc()}
 
 
+@app.get("/migrate-swipes")
+def migrate_swipes():
+    """
+    Migrate swipes table from direction to is_like + swiped_at
+    """
+    from sqlalchemy import text
+    from app.database import SessionLocal
+    import traceback
+
+    db = SessionLocal()
+
+    try:
+        # Check if direction column exists
+        result = db.execute(text("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name='swipes' AND column_name='direction'
+        """))
+
+        has_direction = result.fetchone() is not None
+
+        if has_direction:
+            # Add new columns
+            db.execute(text("ALTER TABLE swipes ADD COLUMN IF NOT EXISTS is_like BOOLEAN"))
+            db.execute(text("ALTER TABLE swipes ADD COLUMN IF NOT EXISTS swiped_at TIMESTAMP"))
+
+            # Migrate data: "right" -> is_like=true, "left" -> is_like=false
+            db.execute(text("""
+                UPDATE swipes
+                SET is_like = CASE WHEN direction = 'right' THEN true ELSE false END,
+                    swiped_at = created_at
+                WHERE is_like IS NULL
+            """))
+
+            # Drop old column
+            db.execute(text("ALTER TABLE swipes DROP COLUMN IF EXISTS direction"))
+
+            db.commit()
+            return {"message": "Swipes table migrated successfully"}
+        else:
+            return {"message": "Migration already applied or table structure is correct"}
+
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
+
+
 @app.get("/reset-onboarding")
 def reset_onboarding():
     """
