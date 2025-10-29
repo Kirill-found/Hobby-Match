@@ -155,6 +155,8 @@ def swipe_user(
 
         if reverse_swipe:
             # It's a match! Create match record
+            matched = True  # Set matched to True since reverse swipe exists
+
             # Check if match already exists
             existing_match = db.query(Match).filter(
                 or_(
@@ -177,7 +179,6 @@ def swipe_user(
                 )
                 db.add(match)
                 db.commit()
-                matched = True
 
     return {
         "success": True,
