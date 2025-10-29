@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { chatApi, Message } from '../api/chat';
+import { chatApi } from '../api/chat';
+import type { Message } from '../api/chat';
 import { useUserStore } from '../store/userStore';
 
 export default function ChatPage() {

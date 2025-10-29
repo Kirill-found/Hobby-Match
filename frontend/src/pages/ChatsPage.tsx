@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { chatApi, ConversationPreview } from '../api/chat';
+import { chatApi } from '../api/chat';
+import type { ConversationPreview } from '../api/chat';
 import BottomNav from '../components/Layout/BottomNav';
 
 export default function ChatsPage() {
