@@ -91,11 +91,11 @@ export default function DiscoveryPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#F7F8FA' }}
+        style={{ backgroundColor: '#0F0F0F' }}
       >
         <div className="text-center px-6">
           <div className="animate-spin text-6xl mb-4">⏳</div>
-          <p className="text-gray-500">Загружаем пользователей...</p>
+          <p className="text-gray-400">Загружаем пользователей...</p>
         </div>
       </div>
     );
@@ -106,14 +106,14 @@ export default function DiscoveryPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#F7F8FA' }}
+        style={{ backgroundColor: '#0F0F0F' }}
       >
         <div className="text-center px-6">
           <div className="text-7xl mb-6">😕</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-white mb-3">
             Что-то пошло не так
           </h2>
-          <p className="text-gray-500 mb-8">{error}</p>
+          <p className="text-gray-400 mb-8">{error}</p>
           <button
             onClick={loadUsers}
             className="tinder-button"
@@ -130,14 +130,14 @@ export default function DiscoveryPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#F7F8FA' }}
+        style={{ backgroundColor: '#0F0F0F' }}
       >
         <div className="text-center px-6">
           <div className="text-7xl mb-6">🎉</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-white mb-3">
             Вы посмотрели всех!
           </h2>
-          <p className="text-gray-500 mb-8">
+          <p className="text-gray-400 mb-8">
             Новые пользователи появятся совсем скоро
           </p>
           <button
@@ -153,8 +153,8 @@ export default function DiscoveryPage() {
 
   return (
     <div
-      className="min-h-screen py-8 px-4"
-      style={{ backgroundColor: '#F7F8FA' }}
+      className="min-h-screen"
+      style={{ backgroundColor: '#0F0F0F', paddingTop: '72px', paddingBottom: '88px' }}
     >
       {/* Match Notification */}
       {showMatchNotification && (
@@ -171,32 +171,55 @@ export default function DiscoveryPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="max-w-md mx-auto mb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Поиск партнеров
-          </h1>
-          <div className="text-sm text-gray-500">
-            {currentIndex + 1} / {users.length}
-          </div>
+      {/* Filter Button - Fixed at Top Right */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '16px',
+          right: '16px',
+          zIndex: 20,
+        }}
+      >
+        <button
+          onClick={() => {
+            // TODO: Open filter modal
+            console.log('Open filter modal');
+          }}
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            backgroundColor: '#1A1A1A',
+            border: '1px solid #2A2A2A',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V19L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Card Container */}
+      <div className="max-w-md mx-auto px-4">
+        <div className="fade-in">
+          <UserCard
+            user={currentUser}
+            onLike={handleLike}
+            onDislike={handleDislike}
+          />
         </div>
-      </div>
-
-      {/* Card */}
-      <div className="fade-in">
-        <UserCard
-          user={currentUser}
-          onLike={handleLike}
-          onDislike={handleDislike}
-        />
-      </div>
-
-      {/* Hint */}
-      <div className="max-w-md mx-auto mt-6 text-center mb-20">
-        <p className="text-sm text-gray-400">
-          Свайпните влево, чтобы пропустить, или вправо, чтобы лайкнуть
-        </p>
       </div>
 
       <BottomNav />

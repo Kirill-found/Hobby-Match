@@ -38,10 +38,10 @@ export default function LikesPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F7F8FA', paddingBottom: '88px' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0F0F0F', paddingBottom: '88px' }}>
         <div className="text-center">
           <div className="animate-spin text-6xl mb-4">⏳</div>
-          <p className="text-gray-500 text-base">Загружаем лайки...</p>
+          <p className="text-gray-400 text-base">Загружаем лайки...</p>
         </div>
         <BottomNav />
       </div>
@@ -51,13 +51,13 @@ export default function LikesPage() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F7F8FA', paddingBottom: '88px' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0F0F0F', paddingBottom: '88px' }}>
         <div className="text-center px-6 max-w-md mx-auto">
           <div className="text-7xl mb-6">😕</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl font-bold text-white mb-3">
             Что-то пошло не так
           </h2>
-          <p className="text-gray-500 mb-8">{error}</p>
+          <p className="text-gray-400 mb-8">{error}</p>
           <button
             onClick={loadLikes}
             className="tinder-button"
@@ -71,21 +71,22 @@ export default function LikesPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F7F8FA' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#0F0F0F' }}>
       {/* Header - fixed at top */}
       <div
-        className="sticky top-0 z-10 bg-white"
+        className="sticky top-0 z-10"
         style={{
-          borderBottom: '1px solid #E5E7EB',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+          backgroundColor: '#1A1A1A',
+          borderBottom: '1px solid #2A2A2A',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.3)',
         }}
       >
         <div className="mx-auto px-6 py-5" style={{ maxWidth: '480px' }}>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             Мои лайки 💚
           </h1>
           {likes.length > 0 && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-400 mt-1">
               {likes.length} {likes.length === 1 ? 'человек' : likes.length < 5 ? 'человека' : 'людей'}
             </p>
           )}
@@ -99,10 +100,10 @@ export default function LikesPage() {
           <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 168px)' }}>
             <div className="text-center px-6 max-w-md mx-auto">
               <div className="text-7xl mb-6">💚</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              <h2 className="text-2xl font-bold text-white mb-3">
                 Пока нет лайков
               </h2>
-              <p className="text-gray-500 text-base leading-relaxed mb-8">
+              <p className="text-gray-400 text-base leading-relaxed mb-8">
                 Начните листать карточки и лайкайте понравившихся людей для совместных хобби
               </p>
               <button
@@ -125,8 +126,8 @@ export default function LikesPage() {
                 return (
                   <div
                     key={like.user_id}
-                    className="relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                    style={{ aspectRatio: '3/4' }}
+                    className="relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    style={{ aspectRatio: '3/4', backgroundColor: '#1A1A1A' }}
                   >
                     {/* Photo */}
                     <img
