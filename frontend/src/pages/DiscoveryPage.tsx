@@ -141,10 +141,19 @@ export default function DiscoveryPage() {
             Новые пользователи появятся совсем скоро
           </p>
           <button
-            onClick={loadUsers}
+            onClick={async () => {
+              try {
+                const result = await discoveryApi.resetSwipes();
+                alert(result.message);
+                loadUsers();
+              } catch (err) {
+                console.error('Error resetting swipes:', err);
+                alert('Не удалось сбросить свайпы');
+              }
+            }}
             className="tinder-button"
           >
-            Обновить список
+            Обновить ленту
           </button>
         </div>
       </div>

@@ -47,4 +47,10 @@ export const discoveryApi = {
     });
     return response.data;
   },
+
+  // Reset all swipes (for testing/dev)
+  resetSwipes: async (): Promise<{ success: boolean; message: string; swipes_deleted: number }> => {
+    const response = await apiClient.delete('/discovery/swipes/reset');
+    return response.data;
+  },
 };

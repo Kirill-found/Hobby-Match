@@ -203,3 +203,34 @@ def swipe_user(
         "matched": matched,
         "message": "It's a match! 🎉" if matched else "Swipe recorded"
     }
+
+
+@router.delete("/swipes/reset")
+def reset_my_swipes(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Reset all swipes for current user (for testing/development)
+    This will allow the user to see all users in discovery again
+    """
+
+    # Count swipes before deletion
+    swipe_count = db.query(Swipe).filter(Swipe.user_id == current_user.id).count()
+
+    if swipe_count > 0:
+        # Delete all swipes
+        db.query(Swipe).filter(Swipe.user_id == current_user.id).delete()
+        db.commit()
+
+        return {
+            "success": True,
+            "message": f"Successfully reset {swipe_count} swipes. Discovery feed refreshed!",
+            "swipes_deleted": swipe_count
+        }
+    else:
+        return {
+            "success": True,
+            "message": "No swipes to reset",
+            "swipes_deleted": 0
+        }
