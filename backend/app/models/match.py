@@ -11,6 +11,7 @@ class Match(Base):
     id = Column(Integer, primary_key=True, index=True)
     user1_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user2_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    matched_at = Column(DateTime, nullable=False)
 
     is_active = Column(Boolean, default=True)
 

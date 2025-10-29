@@ -139,6 +139,50 @@ def migrate_swipes():
         db.close()
 
 
+@app.get("/migrate-matches")
+def migrate_matches():
+    """
+    Add matched_at column to matches table
+    """
+    from sqlalchemy import text
+    from app.database import SessionLocal
+    import traceback
+
+    db = SessionLocal()
+
+    try:
+        # Check if matched_at column exists
+        result = db.execute(text("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name='matches' AND column_name='matched_at'
+        """))
+
+        has_matched_at = result.fetchone() is not None
+
+        if not has_matched_at:
+            # Add matched_at column
+            db.execute(text("ALTER TABLE matches ADD COLUMN matched_at TIMESTAMP"))
+
+            # Set matched_at to created_at for existing matches
+            db.execute(text("""
+                UPDATE matches
+                SET matched_at = created_at
+                WHERE matched_at IS NULL
+            """))
+
+            db.commit()
+            return {"message": "Matches table migrated successfully"}
+        else:
+            return {"message": "Migration already applied or table structure is correct"}
+
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
+
+
 @app.get("/reset-onboarding")
 def reset_onboarding():
     """
