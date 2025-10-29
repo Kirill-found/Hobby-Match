@@ -247,8 +247,9 @@ export default function DiscoveryPage() {
 
       {/* Card Container */}
       <div className="max-w-md mx-auto px-4">
-        <div className="fade-in">
+        <div className="fade-in" key={currentUser.user_id}>
           <UserCard
+            key={currentUser.user_id}
             user={currentUser}
             onLike={handleLike}
             onDislike={handleDislike}

@@ -49,14 +49,12 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
         animateSwipeOut('right');
         setTimeout(() => {
           onLike();
-          resetCard();
         }, 300);
       } else {
         // Swiped left - Dislike
         animateSwipeOut('left');
         setTimeout(() => {
           onDislike();
-          resetCard();
         }, 300);
       }
     } else {
