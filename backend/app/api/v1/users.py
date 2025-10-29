@@ -74,24 +74,53 @@ def upload_photo(
     }
 
 
-@router.delete("/photos/{photo_index}")
+@router.delete("/photos")
 def delete_photo(
-    photo_index: int,
+    photo_url: str,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Delete a profile photo"""
-    if not current_user.photos or photo_index >= len(current_user.photos):
+    """Delete a profile photo by URL"""
+    if not current_user.photos or photo_url not in current_user.photos:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Photo not found"
         )
 
     # Remove photo
-    current_user.photos.pop(photo_index)
+    current_user.photos.remove(photo_url)
     db.commit()
 
     return {"message": "Photo deleted"}
+
+
+@router.put("/photos/reorder")
+def reorder_photos(
+    photo_urls: list[str],
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Reorder user's photos"""
+    # Validate all URLs belong to user
+    if not current_user.photos:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No photos to reorder"
+        )
+
+    # Check all provided URLs are valid
+    for url in photo_urls:
+        if url not in current_user.photos:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Photo URL not found: {url}"
+            )
+
+    # Update photos order
+    current_user.photos = photo_urls
+    db.commit()
+
+    return {"message": "Photos reordered successfully", "photos": current_user.photos}
 
 
 @router.put("/location")

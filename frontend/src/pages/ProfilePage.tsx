@@ -60,10 +60,14 @@ export default function ProfilePage() {
 
   const handleRemoveInterest = async (interestId: number) => {
     try {
-      // TODO: Implement delete interest API call
+      const interest = interests.find(i => i.id === interestId);
+      if (!interest) return;
+
+      await interestsApi.removeUserInterest(interest.category_id);
       setInterests(interests.filter(i => i.id !== interestId));
     } catch (err) {
       console.error('Error removing interest:', err);
+      alert('Не удалось удалить интерес');
     }
   };
 
@@ -77,19 +81,14 @@ export default function ProfilePage() {
       const category = allCategories.find(c => c.id === categoryId);
       if (!category) return;
 
-      // TODO: Call API to add interest
-      const newInterest: UserInterest = {
-        id: Date.now(), // Temporary ID
-        category_id: categoryId,
-        name: category.name,
-        icon: category.icon,
-        skill_level: null,
-        want_to_try: false,
-      };
-
+      // Add interest via API
+      const newInterest = await interestsApi.addUserInterest(categoryId);
       setInterests([...interests, newInterest]);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error adding interest:', err);
+      if (err.response?.data?.detail !== 'Interest already added') {
+        alert('Не удалось добавить интерес');
+      }
     }
   };
 
@@ -137,9 +136,17 @@ export default function ProfilePage() {
     setDraggedPhotoIndex(index);
   };
 
-  const handlePhotoDragEnd = () => {
+  const handlePhotoDragEnd = async () => {
     setDraggedPhotoIndex(null);
-    // TODO: Save new photo order to backend
+
+    // Save new photo order to backend
+    if (!profile) return;
+    try {
+      await profileApi.reorderPhotos(profile.photos);
+    } catch (err: any) {
+      console.error('Error reordering photos:', err);
+      alert('Не удалось сохранить порядок фото');
+    }
   };
 
   const handleSaveBio = async () => {

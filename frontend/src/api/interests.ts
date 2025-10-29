@@ -33,4 +33,19 @@ export const interestsApi = {
     const response = await apiClient.get<UserInterest[]>('/interests/user/interests');
     return response.data;
   },
+
+  // Add user interest
+  addUserInterest: async (categoryId: number, skillLevel?: string | null, wantToTry?: boolean): Promise<UserInterest> => {
+    const response = await apiClient.post<UserInterest>('/interests/user/interests', {
+      category_id: categoryId,
+      skill_level: skillLevel,
+      want_to_try: wantToTry || false,
+    });
+    return response.data;
+  },
+
+  // Remove user interest
+  removeUserInterest: async (categoryId: number): Promise<void> => {
+    await apiClient.delete(`/interests/user/interests/${categoryId}`);
+  },
 };

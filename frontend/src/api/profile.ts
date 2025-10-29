@@ -68,6 +68,11 @@ export const profileApi = {
   },
 
   deletePhoto: async (photoUrl: string): Promise<void> => {
-    await apiClient.delete('/users/photos', { data: { photo_url: photoUrl } });
+    await apiClient.delete('/users/photos', { params: { photo_url: photoUrl } });
+  },
+
+  reorderPhotos: async (photoUrls: string[]): Promise<{ message: string; photos: string[] }> => {
+    const response = await apiClient.put<{ message: string; photos: string[] }>('/users/photos/reorder', photoUrls);
+    return response.data;
   },
 };
