@@ -1,19 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { profileApi, type UserProfile } from '../api/profile';
-import { interestsApi, type UserInterest } from '../api/interests';
+import { interestsApi, type UserInterest, type InterestCategory } from '../api/interests';
 import BottomNav from '../components/Layout/BottomNav';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [interests, setInterests] = useState<UserInterest[]>([]);
+  const [allCategories, setAllCategories] = useState<InterestCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Modal states
+  const [showBioModal, setShowBioModal] = useState(false);
+  const [bioText, setBioText] = useState('');
+  const [showInterestsModal, setShowInterestsModal] = useState(false);
+
+  // Drag & drop state
+  const [draggedPhotoIndex, setDraggedPhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
     loadProfile();
     loadInterests();
+    loadAllCategories();
   }, []);
 
   const loadProfile = async () => {
@@ -21,6 +31,7 @@ export default function ProfilePage() {
       setLoading(true);
       const data = await profileApi.getProfile();
       setProfile(data);
+      setBioText(data.bio || '');
     } catch (err: any) {
       console.error('Error loading profile:', err);
       setError(err.response?.data?.detail || 'Не удалось загрузить профиль');
@@ -38,12 +49,47 @@ export default function ProfilePage() {
     }
   };
 
+  const loadAllCategories = async () => {
+    try {
+      const data = await interestsApi.getCategories();
+      setAllCategories(data);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  };
+
   const handleRemoveInterest = async (interestId: number) => {
     try {
       // TODO: Implement delete interest API call
       setInterests(interests.filter(i => i.id !== interestId));
     } catch (err) {
       console.error('Error removing interest:', err);
+    }
+  };
+
+  const handleAddInterest = async (categoryId: number) => {
+    try {
+      // Check if already added
+      if (interests.some(i => i.category_id === categoryId)) {
+        return;
+      }
+
+      const category = allCategories.find(c => c.id === categoryId);
+      if (!category) return;
+
+      // TODO: Call API to add interest
+      const newInterest: UserInterest = {
+        id: Date.now(), // Temporary ID
+        category_id: categoryId,
+        name: category.name,
+        icon: category.icon,
+        skill_level: null,
+        want_to_try: false,
+      };
+
+      setInterests([...interests, newInterest]);
+    } catch (err) {
+      console.error('Error adding interest:', err);
     }
   };
 
@@ -60,7 +106,54 @@ export default function ProfilePage() {
     }
   };
 
-  // Calculate profile completion percentage
+  const handlePhotoDelete = async (photoUrl: string) => {
+    if (!profile) return;
+    try {
+      await profileApi.deletePhoto(photoUrl);
+      setProfile({
+        ...profile,
+        photos: profile.photos.filter(p => p !== photoUrl)
+      });
+    } catch (err: any) {
+      console.error('Error deleting photo:', err);
+      alert('Не удалось удалить фото');
+    }
+  };
+
+  const handlePhotoDragStart = (index: number) => {
+    setDraggedPhotoIndex(index);
+  };
+
+  const handlePhotoDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedPhotoIndex === null || draggedPhotoIndex === index || !profile) return;
+
+    const newPhotos = [...profile.photos];
+    const draggedPhoto = newPhotos[draggedPhotoIndex];
+    newPhotos.splice(draggedPhotoIndex, 1);
+    newPhotos.splice(index, 0, draggedPhoto);
+
+    setProfile({ ...profile, photos: newPhotos });
+    setDraggedPhotoIndex(index);
+  };
+
+  const handlePhotoDragEnd = () => {
+    setDraggedPhotoIndex(null);
+    // TODO: Save new photo order to backend
+  };
+
+  const handleSaveBio = async () => {
+    if (!profile) return;
+    try {
+      const updated = await profileApi.updateProfile({ bio: bioText });
+      setProfile(updated);
+      setShowBioModal(false);
+    } catch (err: any) {
+      console.error('Error updating bio:', err);
+      alert('Не удалось обновить описание');
+    }
+  };
+
   const calculateCompletion = () => {
     if (!profile) return 0;
     let completed = 0;
@@ -105,6 +198,9 @@ export default function ProfilePage() {
   }
 
   const completion = calculateCompletion();
+  const availableCategories = allCategories.filter(
+    cat => !interests.some(int => int.category_id === cat.id)
+  );
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] pb-24">
@@ -180,194 +276,28 @@ export default function ProfilePage() {
         {/* Interests Section */}
         <div className="space-y-3">
           <h2 className="text-xl font-bold text-white px-1">Интересы</h2>
-          {interests.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {interests.map((interest) => (
-                <div
-                  key={interest.id}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-full"
+          <div className="flex flex-wrap gap-2">
+            {interests.map((interest) => (
+              <div
+                key={interest.id}
+                className="flex items-center gap-2 px-3 py-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-full"
+              >
+                <span className="text-sm text-white">{interest.icon} {interest.name}</span>
+                <button
+                  onClick={() => handleRemoveInterest(interest.id)}
+                  className="text-gray-400 hover:text-white transition-colors"
                 >
-                  <span className="text-sm text-white">{interest.icon} {interest.name}</span>
-                  <button
-                    onClick={() => handleRemoveInterest(interest.id)}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
             <button
-              onClick={() => navigate('/interests')}
-              className="w-full p-4 bg-[#1A1A1A] border border-[#2A2A2A] border-dashed rounded-2xl text-center text-gray-400 hover:border-[#3A3A3A] hover:text-gray-300 transition-colors"
+              onClick={() => setShowInterestsModal(true)}
+              className="px-3 py-2 bg-[#1A1A1A] border border-[#2A2A2A] border-dashed rounded-full text-sm text-gray-400 hover:border-[#3A3A3A] hover:text-gray-300 transition-colors"
             >
-              + Добавить интересы
-            </button>
-          )}
-        </div>
-
-        {/* Main Info Section */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white">Основные</h2>
-            <span className="text-xs text-[#FF4458] font-semibold">+4%</span>
-          </div>
-          <div className="space-y-2">
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Город</div>
-                <div className="text-sm font-medium text-white truncate">{profile.city || 'Не указан'}</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Мировоззрение</div>
-                <div className="text-sm font-medium text-white truncate">Не указано</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <span className="text-xl">♓</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Знак зодиака</div>
-                <div className="text-sm font-medium text-white truncate">Не отображать</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12h10M7 12v7m10-7v7M5 4h14M7 4v3m10-3v3" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Рост</div>
-                <div className="text-sm font-medium text-white truncate">Не указан</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Образование</div>
-                <div className="text-sm font-medium text-white truncate">Не указано</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <span className="text-xl">🧸</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Дети</div>
-                <div className="text-sm font-medium text-white truncate">Нет</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.490 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Языки</div>
-                <div className="text-sm font-medium text-white truncate">Не указаны</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <span className="text-xl">🍷</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Алкоголь</div>
-                <div className="text-sm font-medium text-white truncate">Не указано</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <span className="text-xl">🚬</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Курение</div>
-                <div className="text-sm font-medium text-white truncate">Не указано</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              + Добавить
             </button>
           </div>
         </div>
@@ -382,7 +312,14 @@ export default function ProfilePage() {
             {profile.photos && profile.photos.length > 0 ? (
               <>
                 {profile.photos.slice(0, 6).map((photo, index) => (
-                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] group">
+                  <div
+                    key={index}
+                    draggable
+                    onDragStart={() => handlePhotoDragStart(index)}
+                    onDragOver={(e) => handlePhotoDragOver(e, index)}
+                    onDragEnd={handlePhotoDragEnd}
+                    className="relative aspect-square rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] cursor-move"
+                  >
                     <img
                       src={photo}
                       alt={`Photo ${index + 1}`}
@@ -395,7 +332,17 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     )}
-                    <button className="absolute top-1.5 right-1.5 p-1 bg-black/60 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    {index === 0 && (
+                      <button className="absolute top-1.5 left-1.5 p-1.5 bg-black/70 backdrop-blur-sm rounded-full">
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handlePhotoDelete(photo)}
+                      className="absolute top-1.5 right-1.5 p-1.5 bg-black/70 backdrop-blur-sm rounded-full"
+                    >
                       <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                       </svg>
@@ -439,11 +386,9 @@ export default function ProfilePage() {
               </>
             )}
           </div>
-          {profile.photos && profile.photos.length > 0 && (
-            <p className="text-xs text-gray-500 text-center">
-              Перетащите, чтобы изменить порядок
-            </p>
-          )}
+          <p className="text-xs text-gray-500 text-center">
+            Перетащите, чтобы изменить порядок
+          </p>
         </div>
 
         {/* Bio Section */}
@@ -453,7 +398,7 @@ export default function ProfilePage() {
             <span className="text-xs text-[#FF4458] font-semibold">+6%</span>
           </div>
           <button
-            onClick={() => navigate('/bio')}
+            onClick={() => setShowBioModal(true)}
             className="w-full flex items-center gap-3 p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl text-left hover:bg-[#1F1F1F] transition-colors"
           >
             <div className="flex-shrink-0 w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
@@ -473,57 +418,92 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Work Section */}
+        {/* Main Info Section - abbreviated for space */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white">Сфера работы</h2>
-            <span className="text-xs text-gray-500 font-semibold">+0%</span>
+            <h2 className="text-xl font-bold text-white">Основные</h2>
+            <span className="text-xs text-[#FF4458] font-semibold">+4%</span>
           </div>
-          <button
-            onClick={() => {/* TODO */}}
-            className="w-full flex items-center gap-3 p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl text-left hover:bg-[#1F1F1F] transition-colors"
-          >
-            <div className="flex-shrink-0 w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+          <div className="space-y-2">
+            <button
+              onClick={() => {/* TODO */}}
+              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
+            >
+              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-gray-400 mb-0.5">Город</div>
+                <div className="text-sm font-medium text-white truncate">{profile.city || 'Не указан'}</div>
+              </div>
+              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-base font-semibold text-white mb-0.5">Добавьте сферу деятельности</div>
-              <div className="text-sm text-gray-400">Увеличьте шансы на идеальный мэтч</div>
-            </div>
-            <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        {/* More About You Section */}
-        <div className="space-y-3 pb-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white">Больше о вас</h2>
-            <span className="text-xs text-gray-500 font-semibold">+2%</span>
+            </button>
           </div>
-          <button
-            onClick={() => {/* TODO */}}
-            className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-          >
-            <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-              <span className="text-xl">🎵</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-gray-400 mb-0.5">Любимая музыка</div>
-              <div className="text-sm font-medium text-white truncate">Не указана</div>
-            </div>
-            <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
         </div>
       </div>
 
       <BottomNav />
+
+      {/* Bio Modal */}
+      {showBioModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setShowBioModal(false)}>
+          <div
+            className="w-full bg-[#1A1A1A] rounded-t-3xl p-6 space-y-4 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-2"></div>
+            <h2 className="text-2xl font-bold text-white text-center">Расскажите немного о себе</h2>
+            <div className="space-y-3">
+              <div className="text-sm text-gray-400 mb-2">Био</div>
+              <textarea
+                value={bioText}
+                onChange={(e) => setBioText(e.target.value)}
+                placeholder="Расскажите о хобби, любимом рецепте, о том, что нравится (о суперсиле тоже можно)"
+                className="w-full h-32 px-4 py-3 bg-[#0F0F0F] border border-[#2A2A2A] rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-[#3A3A3A] resize-none"
+                maxLength={500}
+              />
+              <div className="text-xs text-gray-500 text-right">{bioText.length}/500</div>
+            </div>
+            <button
+              onClick={handleSaveBio}
+              className="w-full py-4 bg-white text-black font-semibold rounded-2xl hover:bg-gray-100 transition-colors"
+            >
+              Сохранить
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Interests Modal */}
+      {showInterestsModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setShowInterestsModal(false)}>
+          <div
+            className="w-full bg-[#1A1A1A] rounded-t-3xl p-6 space-y-4 max-h-[80vh] overflow-y-auto animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-2"></div>
+            <h2 className="text-2xl font-bold text-white text-center">Добавить интересы</h2>
+            <div className="flex flex-wrap gap-2">
+              {availableCategories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => {
+                    handleAddInterest(category.id);
+                    setShowInterestsModal(false);
+                  }}
+                  className="px-3 py-2 bg-[#0F0F0F] border border-[#2A2A2A] rounded-full text-sm text-white hover:border-[#3A3A3A] transition-colors"
+                >
+                  {category.icon} {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
