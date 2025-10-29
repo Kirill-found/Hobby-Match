@@ -49,13 +49,17 @@ def seed_interests_endpoint():
     """
     from app.database import SessionLocal
     from app.models.interest import InterestCategory
+    import traceback
 
     db = SessionLocal()
 
-    # Check if already seeded
-    existing = db.query(InterestCategory).first()
-    if existing:
-        return {"message": "Interests already seeded", "count": db.query(InterestCategory).count()}
+    try:
+        # Check if already seeded
+        existing = db.query(InterestCategory).first()
+        if existing:
+            return {"message": "Interests already seeded", "count": db.query(InterestCategory).count()}
+    except Exception as e:
+        return {"error": "Failed to query database", "details": str(e), "traceback": traceback.format_exc()}
 
     interests_data = [
         # СПОРТ (Level 1)
