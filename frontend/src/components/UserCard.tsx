@@ -1,28 +1,15 @@
 import { useState } from 'react';
+import { DiscoveryUser } from '../api/discovery';
 
 interface UserCardProps {
-  user: {
-    user_id?: number;
-    id?: number;
-    name: string;
-    age: number | null;
-    bio: string | null;
-    city?: string;
-    interests?: Array<{ name: string; icon: string }>;
-    common_interests?: any[];
-    distance?: number;
-    distance_km?: number | null;
-    photos?: string[];
-    reliability_score?: number;
-    is_verified?: boolean;
-  };
+  user: DiscoveryUser;
   onLike: () => void;
   onDislike: () => void;
 }
 
 export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
   const [showDetails, setShowDetails] = useState(false);
-  const distance = user.distance_km || user.distance;
+  const distance = user.distance_km;
 
   return (
     <div className="relative w-full h-full">
