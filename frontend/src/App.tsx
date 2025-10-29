@@ -21,8 +21,15 @@ function App() {
     console.log('[App] useEffect triggered - isReady:', isReady, 'user:', user ? 'exists' : 'null', 'initData:', initData ? 'exists' : 'null');
 
     const authenticate = async () => {
+      console.log('[App] authenticate() called');
+      console.log('[App] initData:', initData);
+      console.log('[App] initData length:', initData?.length);
+      console.log('[App] window.Telegram:', typeof window.Telegram);
+      console.log('[App] window.Telegram.WebApp:', typeof window.Telegram?.WebApp);
+
       if (!initData) {
         console.warn('[App] No Telegram initData available - skipping authentication');
+        alert('DEBUG: No initData! Telegram SDK may not be loaded or app not opened via Telegram.');
         return;
       }
 
@@ -41,8 +48,13 @@ function App() {
         // Verify token was saved
         const savedToken = localStorage.getItem('access_token');
         console.log('[App] Token verification - saved:', savedToken ? 'Yes' : 'No', 'length:', savedToken?.length);
+
+        if (!savedToken) {
+          alert('DEBUG: Token NOT saved to localStorage after setAuth!');
+        }
       } catch (error) {
         console.error('[App] Authentication failed:', error);
+        alert('DEBUG: Authentication failed - ' + error);
       }
     };
 
