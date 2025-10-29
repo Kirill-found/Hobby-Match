@@ -14,8 +14,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #F7F8FA;
-  color: #000000;
+  background-color: #0F0F0F;
+  color: #FFFFFF;
   overflow-x: hidden;
 }
 
@@ -28,7 +28,7 @@ body {
 .app-container {
   min-height: 100vh;
   padding-bottom: env(safe-area-inset-bottom);
-  background-color: #F7F8FA;
+  background-color: #0F0F0F;
 }
 
 /* Custom scrollbar - minimal */

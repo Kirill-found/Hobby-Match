@@ -1,5 +1,68 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 
+// SVG Icon Components (like Twinby)
+const ChatIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
+      stroke={active ? "#FFFFFF" : "#666666"}
+      strokeWidth="2"
+      fill={active ? "#FFFFFF" : "none"}
+    />
+  </svg>
+);
+
+const HeartIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
+      stroke={active ? "#FF4458" : "#666666"}
+      strokeWidth="2"
+      fill={active ? "#FF4458" : "none"}
+    />
+  </svg>
+);
+
+const LogoIcon = ({ active }: { active: boolean }) => (
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L2 7L12 12L22 7L12 2Z"
+      stroke={active ? "#FFFFFF" : "#666666"}
+      strokeWidth="2"
+      fill={active ? "#FFFFFF" : "none"}
+    />
+    <path d="M2 17L12 22L22 17"
+      stroke={active ? "#FFFFFF" : "#666666"}
+      strokeWidth="2"
+    />
+    <path d="M2 12L12 17L22 12"
+      stroke={active ? "#FFFFFF" : "#666666"}
+      strokeWidth="2"
+    />
+  </svg>
+);
+
+const FlameIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13.5 0.67C13.5 0.67 11.5 4.67 11.5 8C11.5 9.66 12.83 11 14.5 11C16.17 11 17.5 9.66 17.5 8C17.5 6.34 15.5 2.34 15.5 2.34L13.5 0.67ZM14.5 13C10.92 13 8 15.92 8 19.5C8 23.08 10.92 26 14.5 26C18.08 26 21 23.08 21 19.5C21 15.92 18.08 13 14.5 13Z"
+      fill={active ? "#FF6B00" : "#666666"}
+      transform="scale(0.7) translate(3, -2)"
+    />
+  </svg>
+);
+
+const ProfileIcon = ({ active }: { active: boolean }) => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="8" r="4"
+      stroke={active ? "#FFFFFF" : "#666666"}
+      strokeWidth="2"
+      fill={active ? "#FFFFFF" : "none"}
+    />
+    <path d="M4 20C4 16.6863 6.68629 14 10 14H14C17.3137 14 20 16.6863 20 20V21H4V20Z"
+      stroke={active ? "#FFFFFF" : "#666666"}
+      strokeWidth="2"
+      fill={active ? "#FFFFFF" : "none"}
+    />
+  </svg>
+);
+
 export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -8,118 +71,111 @@ export default function BottomNav() {
 
   const navItems = [
     {
-      path: '/discovery',
-      icon: '🔍',
-      label: 'Поиск',
-      activeIcon: '🔍',
+      path: '/chat',
+      icon: ChatIcon,
+      badge: 0,
     },
     {
       path: '/likes',
-      icon: '💚',
-      label: 'Лайки',
-      activeIcon: '💚',
-      badge: 0, // TODO: dynamic count from API
+      icon: HeartIcon,
+      badge: 4,
+    },
+    {
+      path: '/discovery',
+      icon: LogoIcon,
+      badge: 0,
     },
     {
       path: '/matches',
-      icon: '🤝',
-      label: 'Партнёры',
-      activeIcon: '🤝',
-      badge: 0, // TODO: dynamic count from API
-    },
-    {
-      path: '/chat',
-      icon: '💬',
-      label: 'Чат',
-      activeIcon: '💬',
+      icon: FlameIcon,
+      badge: 2,
     },
     {
       path: '/profile',
-      icon: '👤',
-      label: 'Профиль',
-      activeIcon: '👤',
+      icon: ProfileIcon,
+      badge: 0,
     },
   ];
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 bg-white z-50"
       style={{
-        borderTop: '1px solid #E5E7EB',
-        paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#1A1A1A',
+        borderTop: '1px solid #2A2A2A',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 12px)',
+        zIndex: 50,
       }}
     >
-      {/* Centered container with max width for desktop */}
-      <div className="mx-auto" style={{ maxWidth: '480px' }}>
-        <div className="flex justify-around items-center px-4" style={{ height: '64px' }}>
-          {navItems.map((item) => {
-            const active = isActive(item.path);
-            return (
-              <button
-                key={item.path}
-                onClick={() => navigate(item.path)}
-                className="relative flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:scale-105"
-                style={{
-                  flex: '1',
-                  minWidth: '60px',
-                  maxWidth: '80px',
-                }}
-              >
-                {/* Icon container */}
-                <div className="relative flex items-center justify-center" style={{ width: '28px', height: '28px' }}>
-                  <span style={{ fontSize: '24px', lineHeight: '1' }}>
-                    {active ? item.activeIcon : item.icon}
-                  </span>
-                  {item.badge && item.badge > 0 && (
-                    <span
-                      className="absolute font-bold flex items-center justify-center"
-                      style={{
-                        top: '-4px',
-                        right: '-8px',
-                        backgroundColor: '#EF4444',
-                        color: 'white',
-                        fontSize: '10px',
-                        width: '18px',
-                        height: '18px',
-                        borderRadius: '9px',
-                        border: '2px solid white',
-                      }}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          height: '72px',
+          maxWidth: '600px',
+          margin: '0 auto',
+          padding: '0 16px',
+        }}
+      >
+        {navItems.map((item) => {
+          const active = isActive(item.path);
+          const Icon = item.icon;
 
-                {/* Label */}
+          return (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '12px',
+                transition: 'transform 0.2s ease',
+                transform: active ? 'scale(1.1)' : 'scale(1)',
+              }}
+              onMouseEnter={(e) => {
+                if (!active) e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                if (!active) e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <Icon active={active} />
+
+              {item.badge > 0 && (
                 <span
-                  className="font-medium transition-colors duration-200"
                   style={{
-                    fontSize: '11px',
-                    color: active ? '#6C63FF' : '#9CA3AF',
-                    letterSpacing: '-0.01em',
+                    position: 'absolute',
+                    top: '6px',
+                    right: '6px',
+                    backgroundColor: '#FF4458',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 'bold',
+                    borderRadius: '12px',
+                    minWidth: '18px',
+                    height: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 5px',
+                    border: '2px solid #1A1A1A',
                   }}
                 >
-                  {item.label}
+                  {item.badge}
                 </span>
-
-                {/* Active indicator */}
-                {active && (
-                  <div
-                    className="absolute"
-                    style={{
-                      bottom: '-2px',
-                      width: '32px',
-                      height: '3px',
-                      backgroundColor: '#6C63FF',
-                      borderRadius: '3px 3px 0 0',
-                    }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
