@@ -46,11 +46,16 @@ function App() {
       }
     };
 
-    if (isReady && !user) {
+    // Check if token exists in localStorage
+    const existingToken = localStorage.getItem('access_token');
+    console.log('[App] Existing token in localStorage:', existingToken ? 'Yes' : 'No');
+
+    // Authenticate if no token OR no user in store
+    if (isReady && (!existingToken || !user)) {
       console.log('[App] Conditions met - calling authenticate()');
       authenticate();
     } else {
-      console.log('[App] Conditions NOT met - isReady:', isReady, 'user:', user ? 'exists' : 'null');
+      console.log('[App] Conditions NOT met - isReady:', isReady, 'hasToken:', !!existingToken, 'user:', user ? 'exists' : 'null');
     }
   }, [isReady, initData, user, setAuth]);
 

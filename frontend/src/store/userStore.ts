@@ -28,8 +28,15 @@ export const useUserStore = create<UserState>()(
       },
 
       setAuth: (token, user) => {
+        console.log('[UserStore] setAuth called with token:', token ? `${token.substring(0, 20)}...` : 'null', 'user:', user);
         localStorage.setItem('access_token', token);
+        console.log('[UserStore] Token saved to localStorage');
         set({ token, user });
+        console.log('[UserStore] Store updated with user and token');
+
+        // Double-check it was saved
+        const saved = localStorage.getItem('access_token');
+        console.log('[UserStore] Verification - token in localStorage:', saved ? 'Yes' : 'No');
       },
 
       logout: () => {
