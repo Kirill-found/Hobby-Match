@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 import { authApi } from '../api/auth';
+import { locationApi } from '../api/location';
 
 // Onboarding steps
 import Step1BasicInfo from '../components/onboarding/Step1BasicInfo';
@@ -27,6 +28,8 @@ export default function OnboardingPage() {
     gender: user?.gender || '',
     bio: user?.bio || '',
     city: user?.city || '',
+    latitude: user?.latitude || null,
+    longitude: user?.longitude || null,
     photos: user?.photos || [],
     interests: [],
     partner_gender_preference: 'any',
@@ -35,11 +38,41 @@ export default function OnboardingPage() {
     max_age: 35,
   });
 
+  const [requestingLocation, setRequestingLocation] = useState(false);
+
   const totalSteps = 4;
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Request geolocation after step 1 (basic info)
+    if (currentStep === 1 && !formData.latitude && !formData.longitude) {
+      await requestGeolocation();
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const requestGeolocation = async () => {
+    setRequestingLocation(true);
+    try {
+      const position = await locationApi.requestBrowserLocation();
+      const { latitude, longitude } = position.coords;
+
+      // Update form data with coordinates
+      setFormData(prev => ({
+        ...prev,
+        latitude,
+        longitude,
+      }));
+
+      console.log('Location obtained:', { latitude, longitude });
+    } catch (error) {
+      console.error('Geolocation error:', error);
+      // Don't block onboarding if location fails
+      // User can continue without location
+    } finally {
+      setRequestingLocation(false);
     }
   };
 
@@ -58,11 +91,26 @@ export default function OnboardingPage() {
       console.log('Saving profile with data:', formData);
 
       // Prepare profile data (exclude photos and interests - they're handled separately)
-      const { photos, interests, ...profileData } = formData;
+      const { photos, interests, latitude, longitude, ...profileData } = formData;
 
       // First, update the profile with basic data
       const updatedUser = await authApi.updateProfile(profileData);
       console.log('Profile updated successfully:', updatedUser);
+
+      // Save location if available
+      if (latitude && longitude) {
+        try {
+          await locationApi.updateLocation({
+            latitude,
+            longitude,
+            city: formData.city || undefined,
+          });
+          console.log('Location saved:', { latitude, longitude });
+        } catch (error) {
+          console.error('Failed to save location:', error);
+          // Don't block onboarding if location save fails
+        }
+      }
 
       // TODO: Save interests to backend (requires separate API endpoint)
       console.log('Interests to save:', interests);
@@ -71,8 +119,11 @@ export default function OnboardingPage() {
       const result = await authApi.completeOnboarding();
       console.log('Onboarding completed:', result);
 
-      // Update local state
-      updateUser({ ...formData, onboarding_completed: true });
+      // Update local state (exclude null values)
+      const updateData: any = { ...formData, onboarding_completed: true };
+      if (updateData.latitude === null) delete updateData.latitude;
+      if (updateData.longitude === null) delete updateData.longitude;
+      updateUser(updateData);
 
       // Navigate to discovery
       navigate('/discovery');
@@ -121,6 +172,49 @@ export default function OnboardingPage() {
           {renderStep()}
         </div>
       </div>
+
+      {/* Location request overlay */}
+      {requestingLocation && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '20px',
+          }}
+        >
+          <div style={{ fontSize: '60px', animation: 'pulse 1.5s ease-in-out infinite' }}>
+            📍
+          </div>
+          <div style={{ color: '#FFFFFF', fontSize: '20px', fontWeight: '600', textAlign: 'center', padding: '0 20px' }}>
+            Определяем ваше местоположение...
+          </div>
+          <div style={{ color: '#CCCCCC', fontSize: '14px', textAlign: 'center', padding: '0 20px', maxWidth: '400px' }}>
+            Это поможет нам показывать людей рядом с вами
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+          }
+        }
+      `}</style>
     </div>
   );
 }

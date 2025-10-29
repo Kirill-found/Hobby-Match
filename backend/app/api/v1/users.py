@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import UserUpdate, UserProfile
+from app.schemas.location import LocationUpdate, CityGeocodeRequest, CityGeocodeResponse
 from app.models.user import User
 from app.api.deps import get_current_user
+import httpx
 
 router = APIRouter()
 
@@ -90,3 +92,82 @@ def delete_photo(
     db.commit()
 
     return {"message": "Photo deleted"}
+
+
+@router.put("/location")
+def update_location(
+    location: LocationUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update user location (city and/or coordinates)"""
+    if location.city is not None:
+        current_user.city = location.city
+
+    if location.latitude is not None and location.longitude is not None:
+        current_user.latitude = location.latitude
+        current_user.longitude = location.longitude
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "message": "Location updated successfully",
+        "city": current_user.city,
+        "latitude": current_user.latitude,
+        "longitude": current_user.longitude
+    }
+
+
+@router.post("/location/geocode", response_model=CityGeocodeResponse)
+async def geocode_city(request: CityGeocodeRequest):
+    """
+    Geocode city name to coordinates using Nominatim (OpenStreetMap)
+    Free, no API key required
+    """
+    try:
+        async with httpx.AsyncClient() as client:
+            # Nominatim API (OpenStreetMap)
+            url = "https://nominatim.openstreetmap.org/search"
+            params = {
+                "q": f"{request.city}, {request.country}" if request.country else request.city,
+                "format": "json",
+                "limit": 1,
+                "addressdetails": 1
+            }
+            headers = {
+                "User-Agent": "HobbyMatch/1.0 (dating app)"
+            }
+
+            response = await client.get(url, params=params, headers=headers, timeout=10.0)
+            response.raise_for_status()
+
+            results = response.json()
+
+            if not results:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="City not found"
+                )
+
+            result = results[0]
+            address = result.get("address", {})
+
+            return CityGeocodeResponse(
+                city=address.get("city") or address.get("town") or address.get("village") or request.city,
+                country=address.get("country", request.country or ""),
+                latitude=float(result["lat"]),
+                longitude=float(result["lon"]),
+                display_name=result["display_name"]
+            )
+
+    except httpx.HTTPError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Geocoding service error: {str(e)}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Geocoding failed: {str(e)}"
+        )
