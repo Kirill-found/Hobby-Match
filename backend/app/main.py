@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # Import all models to ensure they are registered with Base
 from app.models import user, interest, swipe, match, message, meeting, payment, report
@@ -19,14 +20,32 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Temporary: allow all origins for debugging
-    allow_credentials=False,  # Must be False when allow_origins is ["*"]
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+# Custom CORS middleware that adds headers manually
+class CustomCORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Handle preflight OPTIONS requests
+        if request.method == "OPTIONS":
+            response = Response()
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "*"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+            response.headers["Access-Control-Max-Age"] = "3600"
+            return response
+
+        # Process the request
+        response = await call_next(request)
+
+        # Add CORS headers to response
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+
+        return response
+
+
+# Add custom CORS middleware
+app.add_middleware(CustomCORSMiddleware)
 
 
 @app.get("/")
