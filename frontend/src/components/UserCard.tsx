@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { DiscoveryUser } from '../api/discovery';
 
 interface UserCardProps {
@@ -11,18 +11,160 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const distance = user.distance_km;
 
+  // Swipe state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Touch/Mouse event handlers for swipe
+  const handleDragStart = (clientX: number, clientY: number) => {
+    if (showDetails) return; // Don't swipe when details are open
+    setIsDragging(true);
+    setStartPos({ x: clientX, y: clientY });
+  };
+
+  const handleDragMove = (clientX: number, clientY: number) => {
+    if (!isDragging || showDetails) return;
+
+    const deltaX = clientX - startPos.x;
+    const deltaY = clientY - startPos.y;
+
+    // Only allow horizontal swipes (ignore if vertical swipe is dominant)
+    if (Math.abs(deltaY) < Math.abs(deltaX)) {
+      setDragOffset({ x: deltaX, y: deltaY * 0.3 }); // Reduce vertical movement
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging || showDetails) return;
+    setIsDragging(false);
+
+    const swipeThreshold = 100; // pixels to trigger swipe
+
+    if (Math.abs(dragOffset.x) > swipeThreshold) {
+      // Trigger swipe action
+      if (dragOffset.x > 0) {
+        // Swiped right - Like
+        animateSwipeOut('right');
+        setTimeout(() => {
+          onLike();
+          resetCard();
+        }, 300);
+      } else {
+        // Swiped left - Dislike
+        animateSwipeOut('left');
+        setTimeout(() => {
+          onDislike();
+          resetCard();
+        }, 300);
+      }
+    } else {
+      // Return to center
+      resetCard();
+    }
+  };
+
+  const animateSwipeOut = (direction: 'left' | 'right') => {
+    if (!cardRef.current) return;
+    const distance = direction === 'left' ? -1000 : 1000;
+    cardRef.current.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+    cardRef.current.style.transform = `translateX(${distance}px) rotate(${direction === 'left' ? -30 : 30}deg)`;
+    cardRef.current.style.opacity = '0';
+  };
+
+  const resetCard = () => {
+    setDragOffset({ x: 0, y: 0 });
+    if (cardRef.current) {
+      cardRef.current.style.transition = 'transform 0.3s ease-out';
+      cardRef.current.style.transform = 'translateX(0) translateY(0) rotate(0deg)';
+    }
+  };
+
+  // Calculate rotation based on drag distance
+  const getRotation = () => {
+    const maxRotation = 15; // degrees
+    const rotation = (dragOffset.x / 300) * maxRotation;
+    return Math.max(-maxRotation, Math.min(maxRotation, rotation));
+  };
+
+  // Calculate opacity for like/dislike indicators
+  const getLikeOpacity = () => Math.max(0, Math.min(1, dragOffset.x / 100));
+  const getDislikeOpacity = () => Math.max(0, Math.min(1, -dragOffset.x / 100));
+
   return (
     <div className="relative w-full h-full">
-      {/* Main Card - Twinby Style */}
+      {/* Main Card - Twinby Style with Swipe */}
       <div
+        ref={cardRef}
         className="relative w-full overflow-hidden"
         style={{
           height: 'calc(100vh - 160px)',
           maxHeight: '700px',
           borderRadius: '24px',
           backgroundColor: '#1A1A1A',
+          transform: isDragging
+            ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${getRotation()}deg)`
+            : 'translateX(0) translateY(0) rotate(0deg)',
+          transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          touchAction: 'none',
         }}
+        onMouseDown={(e) => handleDragStart(e.clientX, e.clientY)}
+        onMouseMove={(e) => isDragging && handleDragMove(e.clientX, e.clientY)}
+        onMouseUp={handleDragEnd}
+        onMouseLeave={handleDragEnd}
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          handleDragStart(touch.clientX, touch.clientY);
+        }}
+        onTouchMove={(e) => {
+          if (isDragging) {
+            const touch = e.touches[0];
+            handleDragMove(touch.clientX, touch.clientY);
+          }
+        }}
+        onTouchEnd={handleDragEnd}
       >
+        {/* Like indicator */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '40px',
+            transform: 'translateY(-50%) rotate(-20deg)',
+            fontSize: '80px',
+            fontWeight: 'bold',
+            color: '#00FF00',
+            textShadow: '0 0 20px rgba(0, 255, 0, 0.5)',
+            opacity: getLikeOpacity(),
+            pointerEvents: 'none',
+            zIndex: 20,
+            transition: 'opacity 0.1s ease-out',
+          }}
+        >
+          ❤️
+        </div>
+
+        {/* Dislike indicator */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            right: '40px',
+            transform: 'translateY(-50%) rotate(20deg)',
+            fontSize: '80px',
+            fontWeight: 'bold',
+            color: '#FF0000',
+            textShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
+            opacity: getDislikeOpacity(),
+            pointerEvents: 'none',
+            zIndex: 20,
+            transition: 'opacity 0.1s ease-out',
+          }}
+        >
+          ✖️
+        </div>
         {/* Photo */}
         <div className="relative w-full h-full">
           {user.photos && user.photos.length > 0 ? (
