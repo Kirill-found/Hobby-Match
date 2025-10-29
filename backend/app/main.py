@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
 
+# Import all models to ensure they are registered with Base
+from app.models import user, interest, swipe, match, message, meeting, payment, report
+
 # Create tables
 Base.metadata.create_all(bind=engine)
 
@@ -39,6 +42,20 @@ def root():
 def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+
+@app.get("/create-tables")
+def create_tables():
+    """
+    Manually create all database tables
+    TODO: Remove this endpoint after initial setup
+    """
+    try:
+        Base.metadata.create_all(bind=engine)
+        return {"message": "Tables created successfully"}
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc()}
 
 
 @app.get("/seed/interests")
