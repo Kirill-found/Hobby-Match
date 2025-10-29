@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DiscoveryUser } from '../api/discovery';
+import type { DiscoveryUser } from '../api/discovery';
 
 interface UserCardProps {
   user: DiscoveryUser;
