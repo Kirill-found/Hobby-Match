@@ -71,9 +71,9 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Progress indicator - Tinder style */}
-      <div className="px-6 py-4 bg-white border-b border-gray-100">
+    <div className="min-h-screen" style={{ backgroundColor: '#F7F8FA' }}>
+      {/* Progress indicator - Modern style */}
+      <div className="px-6 py-4 bg-white shadow-sm">
         <div className="max-w-md mx-auto">
           <div className="progress-bar">
             <div

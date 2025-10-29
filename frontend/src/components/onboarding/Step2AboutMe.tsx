@@ -9,7 +9,6 @@ export default function Step2AboutMe({ data, onChange, onNext, onBack }: Step2Pr
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
     if (!data.bio || data.bio.length < 10) {
       alert('Расскажите о себе хотя бы пару предложений (минимум 10 символов)');
       return;
@@ -19,64 +18,61 @@ export default function Step2AboutMe({ data, onChange, onNext, onBack }: Step2Pr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-telegram-text mb-2">
+    <form onSubmit={handleSubmit} className="space-y-8 fade-in">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-3">
           О себе
-        </h2>
-        <p className="text-telegram-hint">
-          Расскажите немного о себе, своих увлечениях и что ищете
+        </h1>
+        <p className="text-lg text-gray-500">
+          Расскажи, чем увлекаешься и что ищешь
         </p>
       </div>
 
-      {/* Bio */}
+      {/* Bio textarea */}
       <div>
-        <label className="block text-sm font-medium text-telegram-text mb-2">
-          Био <span className="text-red-500">*</span>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Немного о себе
         </label>
         <textarea
           value={data.bio}
           onChange={(e) => onChange({ bio: e.target.value })}
-          placeholder="Расскажите о себе, чем увлекаетесь, чего ищете..."
+          placeholder="Например: Люблю активный отдых, играю в волейбол по выходным. Ищу компанию для походов в горы!"
           rows={6}
-          className="w-full px-4 py-3 bg-telegram-secondaryBg text-telegram-text rounded-lg focus:outline-none focus:ring-2 focus:ring-telegram-button resize-none"
+          className="tinder-input resize-none"
           required
         />
-        <div className="mt-1 text-sm text-telegram-hint">
-          {data.bio.length} символов (минимум 10)
+        <div className="mt-2 text-sm text-gray-400">
+          {data.bio.length} / 500 символов
         </div>
       </div>
 
       {/* Photo upload placeholder */}
-      <div>
-        <label className="block text-sm font-medium text-telegram-text mb-2">
-          Фото профиля
-        </label>
-        <div className="border-2 border-dashed border-telegram-hint/30 rounded-lg p-8 text-center">
-          <div className="text-4xl mb-2">📸</div>
-          <p className="text-telegram-hint text-sm mb-4">
-            Загрузка фото будет добавлена позже
-          </p>
-          <p className="text-telegram-hint text-xs">
-            Пока можете пропустить этот шаг
-          </p>
-        </div>
+      <div className="tinder-card text-center py-8">
+        <div className="text-5xl mb-3">📸</div>
+        <h3 className="font-semibold text-gray-700 mb-2">Добавь фото</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Фото помогут найти партнеров быстрее
+        </p>
+        <p className="text-xs text-gray-400">
+          Загрузка фото будет доступна позже
+        </p>
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 bg-telegram-secondaryBg text-telegram-text py-4 rounded-xl font-semibold hover:opacity-90 transition"
+          className="secondary-button flex-1"
         >
           Назад
         </button>
         <button
           type="submit"
-          className="flex-1 bg-telegram-button text-telegram-buttonText py-4 rounded-xl font-semibold hover:opacity-90 transition"
+          className="tinder-button flex-1"
         >
-          Далее
+          Продолжить
         </button>
       </div>
     </form>

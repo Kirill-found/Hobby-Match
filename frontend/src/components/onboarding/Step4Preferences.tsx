@@ -12,109 +12,95 @@ export default function Step4Preferences({ data, onChange, onComplete, onBack }:
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-telegram-text mb-2">
-          Предпочтения поиска
-        </h2>
-        <p className="text-telegram-hint">
-          Настройте параметры поиска партнеров
+    <form onSubmit={handleSubmit} className="space-y-8 fade-in">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          Кого ищешь?
+        </h1>
+        <p className="text-lg text-gray-500">
+          Настрой параметры поиска партнеров
         </p>
       </div>
 
       {/* Gender preference */}
       <div>
-        <label className="block text-sm font-medium text-telegram-text mb-3">
-          Кого ищете?
+        <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Пол партнера
         </label>
         <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
             onClick={() => onChange({ partner_gender_preference: 'male' })}
-            className={`px-4 py-3 rounded-lg font-medium transition ${
-              data.partner_gender_preference === 'male'
-                ? 'bg-telegram-button text-telegram-buttonText'
-                : 'bg-telegram-secondaryBg text-telegram-text hover:bg-telegram-hint/10'
-            }`}
+            className={`gender-button ${data.partner_gender_preference === 'male' ? 'selected' : ''}`}
           >
-            Мужчин
+            <span className="text-xl">👨</span>
+            <span className="text-sm">Мужчины</span>
           </button>
           <button
             type="button"
             onClick={() => onChange({ partner_gender_preference: 'female' })}
-            className={`px-4 py-3 rounded-lg font-medium transition ${
-              data.partner_gender_preference === 'female'
-                ? 'bg-telegram-button text-telegram-buttonText'
-                : 'bg-telegram-secondaryBg text-telegram-text hover:bg-telegram-hint/10'
-            }`}
+            className={`gender-button ${data.partner_gender_preference === 'female' ? 'selected' : ''}`}
           >
-            Женщин
+            <span className="text-xl">👩</span>
+            <span className="text-sm">Женщины</span>
           </button>
           <button
             type="button"
             onClick={() => onChange({ partner_gender_preference: 'any' })}
-            className={`px-4 py-3 rounded-lg font-medium transition ${
-              data.partner_gender_preference === 'any'
-                ? 'bg-telegram-button text-telegram-buttonText'
-                : 'bg-telegram-secondaryBg text-telegram-text hover:bg-telegram-hint/10'
-            }`}
+            className={`gender-button ${data.partner_gender_preference === 'any' ? 'selected' : ''}`}
           >
-            Всех
+            <span className="text-xl">👥</span>
+            <span className="text-sm">Все</span>
           </button>
         </div>
       </div>
 
       {/* Age range */}
       <div>
-        <label className="block text-sm font-medium text-telegram-text mb-3">
-          Возраст: {data.min_age} - {data.max_age} лет
+        <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Возраст: {data.min_age} — {data.max_age} лет
         </label>
         <div className="space-y-4">
-          <div>
-            <div className="flex justify-between text-sm text-telegram-hint mb-2">
-              <span>От</span>
-              <span>{data.min_age} лет</span>
-            </div>
-            <input
-              type="range"
-              min="18"
-              max="60"
-              value={data.min_age}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                if (val < data.max_age) {
-                  onChange({ min_age: val });
-                }
-              }}
-              className="w-full h-2 bg-telegram-secondaryBg rounded-lg appearance-none cursor-pointer accent-telegram-button"
-            />
-          </div>
-          <div>
-            <div className="flex justify-between text-sm text-telegram-hint mb-2">
-              <span>До</span>
-              <span>{data.max_age} лет</span>
-            </div>
-            <input
-              type="range"
-              min="18"
-              max="60"
-              value={data.max_age}
-              onChange={(e) => {
-                const val = parseInt(e.target.value);
-                if (val > data.min_age) {
-                  onChange({ max_age: val });
-                }
-              }}
-              className="w-full h-2 bg-telegram-secondaryBg rounded-lg appearance-none cursor-pointer accent-telegram-button"
-            />
-          </div>
+          <input
+            type="range"
+            min="18"
+            max="60"
+            value={data.min_age}
+            onChange={(e) => {
+              const val = parseInt(e.target.value);
+              if (val < data.max_age) {
+                onChange({ min_age: val });
+              }
+            }}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #6C63FF 0%, #6C63FF ${((data.min_age - 18) / (60 - 18)) * 100}%, #e0e0e0 ${((data.min_age - 18) / (60 - 18)) * 100}%, #e0e0e0 100%)`
+            }}
+          />
+          <input
+            type="range"
+            min="18"
+            max="60"
+            value={data.max_age}
+            onChange={(e) => {
+              const val = parseInt(e.target.value);
+              if (val > data.min_age) {
+                onChange({ max_age: val });
+              }
+            }}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, #6C63FF 0%, #6C63FF ${((data.max_age - 18) / (60 - 18)) * 100}%, #e0e0e0 ${((data.max_age - 18) / (60 - 18)) * 100}%, #e0e0e0 100%)`
+            }}
+          />
         </div>
       </div>
 
       {/* Distance */}
       <div>
-        <label className="block text-sm font-medium text-telegram-text mb-3">
-          Максимальное расстояние: {data.max_distance_km} км
+        <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Расстояние: до {data.max_distance_km} км
         </label>
         <input
           type="range"
@@ -122,33 +108,36 @@ export default function Step4Preferences({ data, onChange, onComplete, onBack }:
           max="50"
           value={data.max_distance_km}
           onChange={(e) => onChange({ max_distance_km: parseInt(e.target.value) })}
-          className="w-full h-2 bg-telegram-secondaryBg rounded-lg appearance-none cursor-pointer accent-telegram-button"
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, #6C63FF 0%, #6C63FF ${((data.max_distance_km - 1) / (50 - 1)) * 100}%, #e0e0e0 ${((data.max_distance_km - 1) / (50 - 1)) * 100}%, #e0e0e0 100%)`
+          }}
         />
-        <div className="flex justify-between text-xs text-telegram-hint mt-2">
+        <div className="flex justify-between text-xs text-gray-400 mt-2">
           <span>1 км</span>
           <span>50 км</span>
         </div>
       </div>
 
-      {/* Info */}
-      <div className="bg-telegram-secondaryBg p-4 rounded-lg">
-        <p className="text-sm text-telegram-hint">
-          Вы всегда сможете изменить эти настройки в профиле
+      {/* Info card */}
+      <div className="tinder-card bg-gray-50 border-l-4 border-[#6C63FF]">
+        <p className="text-sm text-gray-600">
+          💡 Ты всегда сможешь изменить эти настройки в профиле
         </p>
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 bg-telegram-secondaryBg text-telegram-text py-4 rounded-xl font-semibold hover:opacity-90 transition"
+          className="secondary-button flex-1"
         >
           Назад
         </button>
         <button
           type="submit"
-          className="flex-1 bg-telegram-button text-telegram-buttonText py-4 rounded-xl font-semibold hover:opacity-90 transition"
+          className="tinder-button flex-1"
         >
           Завершить
         </button>
