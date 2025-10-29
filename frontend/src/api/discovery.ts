@@ -1,11 +1,20 @@
 import apiClient from './client';
 
+export interface Interest {
+  name: string;
+  icon: string;
+  skill_level?: string;
+  want_to_try?: boolean;
+}
+
 export interface DiscoveryUser {
   user_id: number;
   name: string;
   age: number | null;
   photos: string[];
   bio: string | null;
+  city: string | null;
+  interests: Interest[];
   common_interests: any[];
   distance_km: number | null;
   reliability_score: number;
