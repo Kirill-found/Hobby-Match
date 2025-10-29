@@ -71,17 +71,13 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-telegram-bg">
-      {/* Progress indicator */}
-      <div className="bg-telegram-secondaryBg px-4 py-3">
+    <div className="min-h-screen bg-white">
+      {/* Progress indicator - Tinder style */}
+      <div className="px-6 py-4 bg-white border-b border-gray-100">
         <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-telegram-hint">Шаг {currentStep} из {totalSteps}</span>
-            <span className="text-sm text-telegram-hint">{Math.round((currentStep / totalSteps) * 100)}%</span>
-          </div>
-          <div className="w-full bg-telegram-hint/20 rounded-full h-2">
+          <div className="progress-bar">
             <div
-              className="bg-telegram-button h-2 rounded-full transition-all duration-300"
+              className="progress-fill"
               style={{ width: `${(currentStep / totalSteps) * 100}%` }}
             />
           </div>
@@ -89,7 +85,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Step content */}
-      <div className="p-4">
+      <div className="px-6 py-8">
         <div className="max-w-md mx-auto">
           {renderStep()}
         </div>
