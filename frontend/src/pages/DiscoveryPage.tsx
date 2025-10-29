@@ -159,12 +159,12 @@ export default function DiscoveryPage() {
       {showMatchNotification && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-sm mx-4 text-center">
-            <div className="text-7xl mb-4">🎉</div>
+            <div className="text-7xl mb-4">🤝</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Это матч!
+              Взаимный интерес!
             </h2>
             <p className="text-gray-500">
-              Вы понравились друг другу. Начните общение!
+              Вы оба хотите заниматься хобби вместе. Начните общение!
             </p>
           </div>
         </div>
