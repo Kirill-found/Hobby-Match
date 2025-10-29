@@ -23,10 +23,16 @@ function App() {
       }
 
       try {
+        console.log('[App] Authenticating with Telegram...');
         const response = await authApi.telegramLogin(initData);
+        console.log('[App] Authentication successful:', {
+          hasToken: !!response.access_token,
+          user: response.user,
+        });
         setAuth(response.access_token, response.user);
+        console.log('[App] Token saved to localStorage');
       } catch (error) {
-        console.error('Authentication failed:', error);
+        console.error('[App] Authentication failed:', error);
       }
     };
 
