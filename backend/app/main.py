@@ -325,8 +325,67 @@ def seed_interests_endpoint():
         db.close()
 
 
+@app.get("/migrate-messages")
+def migrate_messages():
+    """
+    Migrate messages table to add receiver_id and read_at columns
+    """
+    from sqlalchemy import text
+    from app.database import SessionLocal
+    import traceback
+
+    db = SessionLocal()
+
+    try:
+        # Add receiver_id column
+        db.execute(text("""
+            ALTER TABLE messages
+            ADD COLUMN IF NOT EXISTS receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE
+        """))
+
+        # Add read_at column
+        db.execute(text("""
+            ALTER TABLE messages
+            ADD COLUMN IF NOT EXISTS read_at TIMESTAMP
+        """))
+
+        # Create indexes
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_messages_receiver_id ON messages(receiver_id)
+        """))
+
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_messages_match_id ON messages(match_id)
+        """))
+
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_messages_sender_id ON messages(sender_id)
+        """))
+
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_messages_is_read ON messages(is_read)
+        """))
+
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_messages_created_at ON messages(created_at)
+        """))
+
+        db.commit()
+
+        return {
+            "success": True,
+            "message": "Messages table migrated successfully"
+        }
+
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
+
+
 # Import and include routers
-from app.api.v1 import auth, users, interests, discovery, dev, matches, likes
+from app.api.v1 import auth, users, interests, discovery, dev, matches, likes, chat
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
@@ -334,6 +393,7 @@ app.include_router(interests.router, prefix="/api/v1/interests", tags=["interest
 app.include_router(discovery.router, prefix="/api/v1/discovery", tags=["discovery"])
 app.include_router(matches.router, prefix="/api/v1/matches", tags=["matches"])
 app.include_router(likes.router, prefix="/api/v1/likes", tags=["likes"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(dev.router, prefix="/api/v1/dev", tags=["development"])
 
 # TODO: Add more routers as they are created

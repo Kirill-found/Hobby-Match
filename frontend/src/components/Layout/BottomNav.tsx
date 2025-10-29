@@ -67,11 +67,17 @@ export default function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // Chat icon is active for both /chats and /chat/:id
+    if (path === '/chats') {
+      return location.pathname === '/chats' || location.pathname.startsWith('/chat/');
+    }
+    return location.pathname === path;
+  };
 
   const navItems = [
     {
-      path: '/chat',
+      path: '/chats',
       icon: ChatIcon,
       badge: 0,
     },

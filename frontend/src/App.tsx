@@ -10,6 +10,8 @@ import OnboardingPage from './pages/OnboardingPage';
 import DiscoveryPage from './pages/DiscoveryPage';
 import MatchesPage from './pages/MatchesPage';
 import LikesPage from './pages/LikesPage';
+import ChatsPage from './pages/ChatsPage';
+import ChatPage from './pages/ChatPage';
 
 const queryClient = new QueryClient();
 
@@ -109,7 +111,8 @@ function App() {
             <Route path="/discovery" element={<DiscoveryPage />} />
             <Route path="/matches" element={<MatchesPage />} />
             <Route path="/likes" element={<LikesPage />} />
-            <Route path="/chat" element={<div className="p-8 text-center">Страница Чат (в разработке)</div>} />
+            <Route path="/chats" element={<ChatsPage />} />
+            <Route path="/chat/:matchId" element={<ChatPage />} />
             <Route path="/profile" element={<div className="p-8 text-center">Страница Профиль (в разработке)</div>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
