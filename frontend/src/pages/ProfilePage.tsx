@@ -240,22 +240,25 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         {/* Interests Section */}
-        <div className="space-y-3">
-          <h2 className="text-xl font-bold text-white px-1">Интересы</h2>
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Интересы</h2>
+            <span className="text-xs text-[#FF4458] font-semibold">+12%</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
             {interests.map((interest) => (
               <div
                 key={interest.id}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-full"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#1A1A1A] border border-[#2A2A2A] rounded-full"
               >
-                <span className="text-sm text-white">{interest.icon} {interest.name}</span>
+                <span className="text-xs text-white">{interest.icon} {interest.name}</span>
                 <button
                   onClick={() => handleRemoveInterest(interest.id)}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -263,7 +266,7 @@ export default function ProfilePage() {
             ))}
             <button
               onClick={() => setShowInterestsModal(true)}
-              className="px-3 py-2 bg-[#1A1A1A] border border-[#2A2A2A] border-dashed rounded-full text-sm text-gray-400 hover:border-[#3A3A3A] hover:text-gray-300 transition-colors"
+              className="px-2.5 py-1.5 bg-[#1A1A1A] border border-[#2A2A2A] border-dashed rounded-full text-xs text-gray-400 hover:border-[#3A3A3A] hover:text-gray-300 transition-colors"
             >
               + Добавить
             </button>
@@ -271,12 +274,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Photos Section */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white">Мои фото</h2>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Мои фото</h2>
             <span className="text-xs text-[#FF4458] font-semibold">+24%</span>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1.5">
             {profile.photos && profile.photos.length > 0 ? (
               <>
                 {profile.photos.slice(0, 6).map((photo, index) => (
@@ -286,7 +289,7 @@ export default function ProfilePage() {
                     onDragStart={() => handlePhotoDragStart(index)}
                     onDragOver={(e) => handlePhotoDragOver(e, index)}
                     onDragEnd={handlePhotoDragEnd}
-                    className="relative aspect-square rounded-xl overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] cursor-move"
+                    className="relative aspect-square rounded-lg overflow-hidden bg-[#1A1A1A] border border-[#2A2A2A] cursor-move"
                   >
                     <img
                       src={photo}
@@ -294,34 +297,33 @@ export default function ProfilePage() {
                       className="w-full h-full object-cover"
                     />
                     {index === 0 && (
-                      <div className="absolute bottom-1.5 left-1.5 right-1.5">
-                        <div className="px-2 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] text-white text-center font-medium">
+                      <div className="absolute bottom-1 left-1 right-1">
+                        <div className="px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[9px] text-white text-center font-medium">
                           Главное фото
                         </div>
                       </div>
                     )}
                     {index === 0 && (
-                      <button className="absolute top-1.5 left-1.5 p-1.5 bg-black/70 backdrop-blur-sm rounded-full">
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <button className="absolute top-1 left-1 p-1 bg-black/70 backdrop-blur-sm rounded-full">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                       </button>
                     )}
                     <button
                       onClick={() => handlePhotoDelete(photo)}
-                      className="absolute top-1.5 right-1.5 p-1.5 bg-black/70 backdrop-blur-sm rounded-full"
+                      className="absolute top-1 right-1 p-1 bg-black/70 backdrop-blur-sm rounded-full"
                     >
-                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
                 ))}
                 {profile.photos.length < 6 && (
-                  <label className="aspect-square rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] border-dashed flex items-center justify-center cursor-pointer hover:border-[#3A3A3A] hover:bg-[#1F1F1F] transition-colors">
-                    <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <label className="aspect-square rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] border-dashed flex items-center justify-center cursor-pointer hover:border-[#3A3A3A] hover:bg-[#1F1F1F] transition-colors">
+                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     <input
                       type="file"
@@ -337,11 +339,10 @@ export default function ProfilePage() {
                 {[...Array(6)].map((_, index) => (
                   <label
                     key={index}
-                    className="aspect-square rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] border-dashed flex items-center justify-center cursor-pointer hover:border-[#3A3A3A] hover:bg-[#1F1F1F] transition-colors"
+                    className="aspect-square rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] border-dashed flex items-center justify-center cursor-pointer hover:border-[#3A3A3A] hover:bg-[#1F1F1F] transition-colors"
                   >
-                    <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     <input
                       type="file"
@@ -354,29 +355,33 @@ export default function ProfilePage() {
               </>
             )}
           </div>
-          <p className="text-xs text-gray-500 text-center">
-            Перетащите, чтобы изменить порядок
-          </p>
         </div>
 
         {/* Bio Section */}
-        <div className="space-y-3">
-          <h2 className="text-xl font-bold text-white px-1">Био</h2>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Био</h2>
+            <span className="text-xs text-[#FF4458] font-semibold">+6%</span>
+          </div>
           <button
             onClick={() => setShowBioModal(true)}
-            className="w-full flex items-center gap-3 p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl text-left hover:bg-[#1F1F1F] transition-colors"
+            className="w-full flex items-center gap-2.5 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
           >
-            <div className="flex-shrink-0 w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex-shrink-0 w-7 h-7 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-base font-medium text-white italic">
-                {profile.bio || 'Расскажите о себе'}
-              </div>
+              <div className="text-sm font-medium text-white">Расскажите о себе</div>
+              {profile.bio && (
+                <div className="text-xs text-gray-400 line-clamp-1 mt-0.5">{profile.bio}</div>
+              )}
+              {!profile.bio && (
+                <div className="text-xs text-gray-500 mt-0.5">Заполненная анкета повышает шансы на мэтч!</div>
+              )}
             </div>
-            <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
