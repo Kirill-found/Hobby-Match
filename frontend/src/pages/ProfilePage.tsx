@@ -240,46 +240,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
-        {/* Verification Card */}
-        <button
-          onClick={() => {/* TODO: Open verification */}}
-          className="w-full flex items-center gap-3 p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl text-left hover:bg-[#1F1F1F] transition-colors group"
-        >
-          <div className="flex-shrink-0 w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-base font-semibold text-white mb-0.5">Верифицируйте профиль</div>
-            <div className="text-sm text-gray-400">Больше возможностей с подтвержденным аккаунтом</div>
-          </div>
-          <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-
-        {/* I'm Here For Section */}
-        <div className="space-y-3">
-          <h2 className="text-xl font-bold text-white px-1">Я здесь для</h2>
-          <button
-            onClick={() => {/* TODO: Open dating preferences */}}
-            className="w-full flex items-center gap-3 p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl text-left hover:bg-[#1F1F1F] transition-colors"
-          >
-            <div className="flex-shrink-0 w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-              <span className="text-xl">☕</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-base font-semibold text-white mb-0.5">Свидания</div>
-              <div className="text-sm text-gray-400">Ходить на свидания и хорошо проводить время</div>
-            </div>
-            <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Interests Section */}
         <div className="space-y-3">
           <h2 className="text-xl font-bold text-white px-1">Интересы</h2>
@@ -400,10 +361,7 @@ export default function ProfilePage() {
 
         {/* Bio Section */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white">Био</h2>
-            <span className="text-xs text-[#FF4458] font-semibold">+6%</span>
-          </div>
+          <h2 className="text-xl font-bold text-white px-1">Био</h2>
           <button
             onClick={() => setShowBioModal(true)}
             className="w-full flex items-center gap-3 p-4 bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl text-left hover:bg-[#1F1F1F] transition-colors"
@@ -414,42 +372,14 @@ export default function ProfilePage() {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-base font-semibold text-white mb-0.5">Расскажите о себе</div>
-              <div className="text-sm text-gray-400 line-clamp-1">
-                {profile.bio || 'Заполненная анкета повышает шансы на мэтч!'}
+              <div className="text-base font-medium text-white italic">
+                {profile.bio || 'Расскажите о себе'}
               </div>
             </div>
             <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
-        </div>
-
-        {/* Main Info Section - abbreviated for space */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xl font-bold text-white">Основные</h2>
-            <span className="text-xs text-[#FF4458] font-semibold">+4%</span>
-          </div>
-          <div className="space-y-2">
-            <button
-              onClick={() => {/* TODO */}}
-              className="w-full flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl text-left hover:bg-[#1F1F1F] transition-colors"
-            >
-              <div className="flex-shrink-0 w-9 h-9 bg-[#2A2A2A] rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-400 mb-0.5">Город</div>
-                <div className="text-sm font-medium text-white truncate">{profile.city || 'Не указан'}</div>
-              </div>
-              <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
         </div>
       </div>
 
