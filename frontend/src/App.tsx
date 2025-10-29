@@ -9,6 +9,7 @@ import { authApi } from './api/auth';
 import OnboardingPage from './pages/OnboardingPage';
 import DiscoveryPage from './pages/DiscoveryPage';
 import MatchesPage from './pages/MatchesPage';
+import LikesPage from './pages/LikesPage';
 
 const queryClient = new QueryClient();
 
@@ -107,7 +108,7 @@ function App() {
             />
             <Route path="/discovery" element={<DiscoveryPage />} />
             <Route path="/matches" element={<MatchesPage />} />
-            <Route path="/likes" element={<div className="p-8 text-center">Страница Лайки (в разработке)</div>} />
+            <Route path="/likes" element={<LikesPage />} />
             <Route path="/chat" element={<div className="p-8 text-center">Страница Чат (в разработке)</div>} />
             <Route path="/profile" element={<div className="p-8 text-center">Страница Профиль (в разработке)</div>} />
             <Route path="*" element={<Navigate to="/" replace />} />
