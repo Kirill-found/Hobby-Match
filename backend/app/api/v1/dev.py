@@ -23,6 +23,9 @@ def seed_test_users(db: Session = Depends(get_db)):
             "last_name": "Иванова",
             "age": 24,
             "gender": "female",
+            "partner_gender_preference": "any",
+            "min_age": 18,
+            "max_age": 50,
             "bio": "Люблю активный отдых, играю в волейбол по выходным. Ищу компанию для походов в горы!",
             "city": "Москва",
             "district": "Центральный",
@@ -170,4 +173,33 @@ def clear_test_users(db: Session = Depends(get_db)):
         "success": True,
         "deleted_count": deleted,
         "message": f"Deleted {deleted} test users"
+    }
+
+
+@router.get("/all-users")
+def get_all_users(db: Session = Depends(get_db)):
+    """
+    Get all users for debugging
+    WARNING: Only use in development!
+    """
+    users = db.query(User).all()
+
+    user_list = []
+    for user in users:
+        user_list.append({
+            "id": user.id,
+            "telegram_id": user.telegram_id,
+            "first_name": user.first_name,
+            "age": user.age,
+            "gender": user.gender,
+            "partner_gender_preference": user.partner_gender_preference,
+            "min_age": user.min_age,
+            "max_age": user.max_age,
+            "onboarding_completed": user.onboarding_completed,
+            "is_active": user.is_active,
+        })
+
+    return {
+        "total_users": len(users),
+        "users": user_list
     }
