@@ -55,20 +55,34 @@ export default function OnboardingPage() {
 
   const handleComplete = async () => {
     try {
-      // First, update the profile with all form data
-      await authApi.updateProfile(formData);
+      console.log('Saving profile with data:', formData);
+
+      // Prepare profile data (exclude photos and interests - they're handled separately)
+      const { photos, interests, ...profileData } = formData;
+
+      // First, update the profile with basic data
+      const updatedUser = await authApi.updateProfile(profileData);
+      console.log('Profile updated successfully:', updatedUser);
+
+      // TODO: Save interests to backend (requires separate API endpoint)
+      console.log('Interests to save:', interests);
 
       // Then mark onboarding as completed
-      await authApi.completeOnboarding();
+      const result = await authApi.completeOnboarding();
+      console.log('Onboarding completed:', result);
 
       // Update local state
       updateUser({ ...formData, onboarding_completed: true });
 
       // Navigate to discovery
       navigate('/discovery');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to complete onboarding:', error);
-      alert('Не удалось сохранить профиль. Попробуйте еще раз.');
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+
+      const errorMessage = error.response?.data?.detail || 'Не удалось сохранить профиль. Попробуйте еще раз.';
+      alert(errorMessage);
     }
   };
 
