@@ -176,6 +176,27 @@ def clear_test_users(db: Session = Depends(get_db)):
     }
 
 
+@router.delete("/clear-swipes")
+def clear_swipes(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Clear all swipes for a specific user
+    WARNING: Only use in development!
+    """
+    from app.models.swipe import Swipe
+
+    deleted = db.query(Swipe).filter(Swipe.user_id == user_id).delete()
+    db.commit()
+
+    return {
+        "success": True,
+        "deleted_count": deleted,
+        "message": f"Deleted {deleted} swipes for user {user_id}"
+    }
+
+
 @router.get("/all-users")
 def get_all_users(db: Session = Depends(get_db)):
     """
