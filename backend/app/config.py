@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     YOOKASSA_SECRET_KEY: str = ""
 
     # CORS
-    ALLOWED_ORIGINS: str = '["http://localhost:5173","https://*.telegram.org","https://t.me"]'
+    ALLOWED_ORIGINS: str = '["http://localhost:5173","https://*.telegram.org","https://t.me","https://hobby-match-nine.vercel.app"]'
 
     @property
     def origins_list(self) -> List[str]:
