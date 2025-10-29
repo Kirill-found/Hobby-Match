@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.swipe import Swipe
 from app.models.match import Match
+from app.models.interest import UserInterest, InterestCategory
 from app.api.deps import get_current_user
 from app.schemas.user import DiscoveryCard
 from typing import List
@@ -70,6 +71,20 @@ def get_discovery_users(
             # TODO: Implement Haversine formula for distance calculation
             distance_km = 5.0  # Placeholder
 
+        # Get user interests with icons
+        user_interests_query = db.query(UserInterest, InterestCategory).join(
+            InterestCategory, UserInterest.category_id == InterestCategory.id
+        ).filter(UserInterest.user_id == user.id).all()
+
+        interests = []
+        for user_interest, category in user_interests_query:
+            interests.append({
+                "name": category.name,
+                "icon": category.icon or "🎯",
+                "skill_level": user_interest.skill_level,
+                "want_to_try": user_interest.want_to_try
+            })
+
         # Get common interests (placeholder)
         common_interests = []  # TODO: Query user_interests table
 
@@ -79,6 +94,8 @@ def get_discovery_users(
             age=user.age,
             photos=user.photos if user.photos else [],
             bio=user.bio,
+            city=user.city,
+            interests=interests,
             common_interests=common_interests,
             distance_km=distance_km,
             reliability_score=user.reliability_score,

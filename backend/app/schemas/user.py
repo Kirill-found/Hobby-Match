@@ -98,7 +98,9 @@ class DiscoveryCard(BaseModel):
     age: Optional[int]
     photos: List[str]
     bio: Optional[str]
+    interests: List[dict]  # All user interests with name, icon, skill_level
     common_interests: List[dict]  # Interests with skill levels
     distance_km: Optional[float]
     reliability_score: float
     is_verified: bool
+    city: Optional[str] = None
