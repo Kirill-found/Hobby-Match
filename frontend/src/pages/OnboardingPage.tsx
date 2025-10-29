@@ -7,7 +7,7 @@ import { locationApi } from '../api/location';
 // Onboarding steps
 import Step1BasicInfo from '../components/onboarding/Step1BasicInfo';
 import Step2AboutMe from '../components/onboarding/Step2AboutMe';
-import Step3Interests from '../components/onboarding/Step3Interests';
+import Step3InterestsNew from '../components/onboarding/Step3InterestsNew';
 import Step4Preferences from '../components/onboarding/Step4Preferences';
 
 export default function OnboardingPage() {
@@ -112,8 +112,34 @@ export default function OnboardingPage() {
         }
       }
 
-      // TODO: Save interests to backend (requires separate API endpoint)
-      console.log('Interests to save:', interests);
+      // Save interests to backend
+      if (interests && Array.isArray(interests) && interests.length > 0) {
+        try {
+          // Save each interest with skill level
+          for (const interest of interests as any[]) {
+            try {
+              await fetch(`${import.meta.env.VITE_API_URL}/interests/user/interests`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify({
+                  category_id: interest.category_id,
+                  skill_level: interest.skill_level,
+                  want_to_try: interest.want_to_try || false,
+                }),
+              });
+            } catch (err) {
+              console.error('Failed to save interest:', interest, err);
+            }
+          }
+          console.log('Interests saved successfully');
+        } catch (error) {
+          console.error('Failed to save interests:', error);
+          // Don't block onboarding if interests save fails
+        }
+      }
 
       // Then mark onboarding as completed
       const result = await authApi.completeOnboarding();
@@ -144,7 +170,7 @@ export default function OnboardingPage() {
       case 2:
         return <Step2AboutMe data={formData} onChange={handleDataChange} onNext={handleNext} onBack={handleBack} />;
       case 3:
-        return <Step3Interests data={formData} onChange={handleDataChange} onNext={handleNext} onBack={handleBack} />;
+        return <Step3InterestsNew data={formData} onChange={handleDataChange} onNext={handleNext} onBack={handleBack} />;
       case 4:
         return <Step4Preferences data={formData} onChange={handleDataChange} onComplete={handleComplete} onBack={handleBack} />;
       default:
