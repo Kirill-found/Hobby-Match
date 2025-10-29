@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 
@@ -11,6 +11,13 @@ import Step4Preferences from '../components/onboarding/Step4Preferences';
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { user, updateUser } = useUserStore();
+
+  // Redirect to discovery if onboarding already completed
+  useEffect(() => {
+    if (user?.onboarding_completed) {
+      navigate('/discovery', { replace: true });
+    }
+  }, [user, navigate]);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',

@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUserStore } from '../store/userStore';
 import UserCard from '../components/UserCard';
 
 // Моковые данные для тестирования
@@ -58,8 +60,17 @@ const MOCK_USERS = [
 ];
 
 export default function DiscoveryPage() {
+  const navigate = useNavigate();
+  const { user } = useUserStore();
   const [users, setUsers] = useState(MOCK_USERS);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (user && !user.onboarding_completed) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const currentUser = users[currentIndex];
 
