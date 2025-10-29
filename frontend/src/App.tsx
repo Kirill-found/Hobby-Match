@@ -53,9 +53,16 @@ function App() {
     // Authenticate if no token OR no user in store
     if (isReady && (!existingToken || !user)) {
       console.log('[App] Conditions met - calling authenticate()');
+      console.log('[App] isReady:', isReady, 'existingToken:', !!existingToken, 'user:', !!user);
       authenticate();
     } else {
       console.log('[App] Conditions NOT met - isReady:', isReady, 'hasToken:', !!existingToken, 'user:', user ? 'exists' : 'null');
+
+      // If we have user but no token - this is the problem!
+      if (user && !existingToken) {
+        console.error('[App] PROBLEM FOUND: User exists but no token! Re-authenticating...');
+        authenticate();
+      }
     }
   }, [isReady, initData, user, setAuth]);
 
