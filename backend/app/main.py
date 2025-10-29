@@ -137,16 +137,20 @@ def seed_interests_endpoint():
     ]
 
     try:
+        count = 0
         for interest_data in interests_data:
             interest = InterestCategory(**interest_data)
             db.add(interest)
+            db.flush()  # Flush to get IDs for parent references
+            count += 1
 
         db.commit()
-        return {"message": "Successfully seeded interests", "count": len(interests_data)}
+        return {"message": "Successfully seeded interests", "count": count}
 
     except Exception as e:
         db.rollback()
-        return {"error": str(e)}
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc()}
     finally:
         db.close()
 
