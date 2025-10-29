@@ -13,14 +13,8 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [partnerId, setPartnerId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Partner info from first message
-  const partnerId = messages.length > 0
-    ? messages[0].sender_id === user?.id
-      ? messages[0].receiver_id
-      : messages[0].sender_id
-    : null;
 
   useEffect(() => {
     if (matchId) {
@@ -42,6 +36,26 @@ export default function ChatPage() {
       setError(null);
       const data = await chatApi.getMessages(Number(matchId));
       setMessages(data);
+
+      // Determine partner ID from messages or conversations
+      if (data.length > 0 && user) {
+        const firstMessage = data[0];
+        const determinedPartnerId = firstMessage.sender_id === user.id
+          ? firstMessage.receiver_id
+          : firstMessage.sender_id;
+        setPartnerId(determinedPartnerId);
+      } else if (user) {
+        // If no messages yet, get partner info from conversations
+        try {
+          const conversations = await chatApi.getConversations();
+          const currentConversation = conversations.find(c => c.match_id === Number(matchId));
+          if (currentConversation) {
+            setPartnerId(currentConversation.partner_id);
+          }
+        } catch (err) {
+          console.error('Error loading conversations:', err);
+        }
+      }
     } catch (err: any) {
       console.error('Error loading messages:', err);
       setError(err.response?.data?.detail || 'Не удалось загрузить сообщения');
