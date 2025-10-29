@@ -6,8 +6,9 @@ from app.database import engine, Base
 # Import all models to ensure they are registered with Base
 from app.models import user, interest, swipe, match, message, meeting, payment, report
 
-# Create tables
-Base.metadata.create_all(bind=engine)
+# Don't create tables on startup - they should be created via migrations or /create-tables endpoint
+# This prevents crashes when using SQLite locally (ARRAY type not supported)
+# Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(
