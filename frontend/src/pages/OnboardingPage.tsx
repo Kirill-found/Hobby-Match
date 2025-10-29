@@ -15,7 +15,7 @@ export default function OnboardingPage() {
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
-    age: user?.age || '',
+    age: user?.age || 18,
     gender: user?.gender || '',
     bio: user?.bio || '',
     city: user?.city || '',
