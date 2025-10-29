@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 import UserCard from '../components/UserCard';
-import { discoveryApi, type DiscoveryUser } from '../api/discovery';
+import { discoveryApi } from '../api/discovery';
+import type { DiscoveryUser, DiscoveryFilters } from '../api/discovery';
+import { interestsApi } from '../api/interests';
+import type { InterestCategory } from '../api/interests';
 import BottomNav from '../components/Layout/BottomNav';
+import FilterModal from '../components/FilterModal';
 
 export default function DiscoveryPage() {
   const navigate = useNavigate();
@@ -13,6 +17,14 @@ export default function DiscoveryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showMatchNotification, setShowMatchNotification] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [interests, setInterests] = useState<InterestCategory[]>([]);
+  const [filters, setFilters] = useState<DiscoveryFilters>({
+    minAge: 18,
+    maxAge: 60,
+    maxDistance: 50,
+    selectedInterests: [],
+  });
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -24,13 +36,14 @@ export default function DiscoveryPage() {
   // Load discovery users on mount
   useEffect(() => {
     loadUsers();
+    loadInterests();
   }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = async (appliedFilters?: DiscoveryFilters) => {
     try {
       setLoading(true);
       setError(null);
-      const discoveryUsers = await discoveryApi.getUsers(20);
+      const discoveryUsers = await discoveryApi.getUsers(20, appliedFilters);
       setUsers(discoveryUsers);
       setCurrentIndex(0);
     } catch (err: any) {
@@ -39,6 +52,21 @@ export default function DiscoveryPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadInterests = async () => {
+    try {
+      // Load all interest categories for filter
+      const categories = await interestsApi.getCategories();
+      setInterests(categories);
+    } catch (err) {
+      console.error('Error loading interests:', err);
+    }
+  };
+
+  const handleApplyFilters = (newFilters: DiscoveryFilters) => {
+    setFilters(newFilters);
+    loadUsers(newFilters);
   };
 
   const currentUser = users[currentIndex];
@@ -115,7 +143,7 @@ export default function DiscoveryPage() {
           </h2>
           <p className="text-gray-400 mb-8">{error}</p>
           <button
-            onClick={loadUsers}
+            onClick={() => loadUsers()}
             className="tinder-button"
           >
             Попробовать снова
@@ -145,7 +173,7 @@ export default function DiscoveryPage() {
               try {
                 const result = await discoveryApi.resetSwipes();
                 alert(result.message);
-                loadUsers();
+                await loadUsers();
               } catch (err) {
                 console.error('Error resetting swipes:', err);
                 alert('Не удалось сбросить свайпы');
@@ -190,10 +218,7 @@ export default function DiscoveryPage() {
         }}
       >
         <button
-          onClick={() => {
-            // TODO: Open filter modal
-            console.log('Open filter modal');
-          }}
+          onClick={() => setShowFilterModal(true)}
           style={{
             width: '48px',
             height: '48px',
@@ -232,6 +257,15 @@ export default function DiscoveryPage() {
       </div>
 
       <BottomNav />
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApply={handleApplyFilters}
+        currentFilters={filters}
+        interests={interests.map(cat => ({ id: cat.id, name: cat.name, icon: cat.icon || '🎯' }))}
+      />
     </div>
   );
 }

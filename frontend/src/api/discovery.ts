@@ -28,12 +28,28 @@ export interface SwipeResponse {
   message: string;
 }
 
+export interface DiscoveryFilters {
+  minAge?: number;
+  maxAge?: number;
+  maxDistance?: number;
+  selectedInterests?: number[];
+}
+
 export const discoveryApi = {
   // Get users for discovery
-  getUsers: async (limit: number = 10): Promise<DiscoveryUser[]> => {
-    const response = await apiClient.get<DiscoveryUser[]>('/discovery/users', {
-      params: { limit },
-    });
+  getUsers: async (limit: number = 10, filters?: DiscoveryFilters): Promise<DiscoveryUser[]> => {
+    const params: any = { limit };
+
+    if (filters) {
+      if (filters.minAge !== undefined) params.min_age = filters.minAge;
+      if (filters.maxAge !== undefined) params.max_age = filters.maxAge;
+      if (filters.maxDistance !== undefined) params.max_distance = filters.maxDistance;
+      if (filters.selectedInterests && filters.selectedInterests.length > 0) {
+        params.interest_ids = filters.selectedInterests.join(',');
+      }
+    }
+
+    const response = await apiClient.get<DiscoveryUser[]>('/discovery/users', { params });
     return response.data;
   },
 

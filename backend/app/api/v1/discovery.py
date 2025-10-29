@@ -17,6 +17,10 @@ router = APIRouter()
 @router.get("/users", response_model=List[DiscoveryCard])
 def get_discovery_users(
     limit: int = 10,
+    min_age: int = None,
+    max_age: int = None,
+    max_distance: int = None,
+    interest_ids: str = None,  # Comma-separated IDs
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -53,14 +57,61 @@ def get_discovery_users(
     if current_user.partner_gender_preference and current_user.partner_gender_preference != 'any':
         query = query.filter(User.gender == current_user.partner_gender_preference)
 
-    # Age preference filter
-    if current_user.min_age:
-        query = query.filter(User.age >= current_user.min_age)
-    if current_user.max_age:
-        query = query.filter(User.age <= current_user.max_age)
+    # Age preference filter - use provided filters or user preferences
+    effective_min_age = min_age if min_age is not None else current_user.min_age
+    effective_max_age = max_age if max_age is not None else current_user.max_age
+
+    if effective_min_age:
+        query = query.filter(User.age >= effective_min_age)
+    if effective_max_age:
+        query = query.filter(User.age <= effective_max_age)
+
+    # Interest filter - if specific interests requested
+    if interest_ids:
+        interest_id_list = [int(id_str.strip()) for id_str in interest_ids.split(',') if id_str.strip()]
+        if interest_id_list:
+            # Get users who have at least one of the selected interests
+            users_with_interests = db.query(UserInterest.user_id).filter(
+                UserInterest.category_id.in_(interest_id_list)
+            ).distinct().all()
+            user_ids_with_interests = [uid[0] for uid in users_with_interests]
+
+            if user_ids_with_interests:
+                query = query.filter(User.id.in_(user_ids_with_interests))
+            else:
+                # No users with these interests - return empty list
+                return []
 
     # Get users
     users = query.limit(limit).all()
+
+    # Filter by distance if max_distance is provided (post-query filtering)
+    if max_distance and current_user.latitude and current_user.longitude:
+        filtered_users = []
+        for user in users:
+            if user.latitude and user.longitude:
+                # Simple distance calculation (Haversine formula approximation)
+                from math import radians, sin, cos, sqrt, atan2
+
+                lat1 = radians(current_user.latitude)
+                lon1 = radians(current_user.longitude)
+                lat2 = radians(user.latitude)
+                lon2 = radians(user.longitude)
+
+                dlat = lat2 - lat1
+                dlon = lon2 - lon1
+
+                a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+                c = 2 * atan2(sqrt(a), sqrt(1 - a))
+                distance = 6371 * c  # Earth radius in kilometers
+
+                if distance <= max_distance:
+                    filtered_users.append(user)
+            else:
+                # User has no coordinates - include them anyway
+                filtered_users.append(user)
+
+        users = filtered_users
 
     # Convert to DiscoveryCard format
     discovery_cards = []
