@@ -8,6 +8,15 @@ export interface InterestCategory {
   parent_id: number | null;
 }
 
+export interface UserInterest {
+  id: number;
+  category_id: number;
+  name: string;
+  icon: string | null;
+  skill_level: string | null;
+  want_to_try: boolean;
+}
+
 export const interestsApi = {
   // Get all interest categories
   getCategories: async (level?: number, parentId?: number): Promise<InterestCategory[]> => {
@@ -16,6 +25,12 @@ export const interestsApi = {
     if (parentId !== undefined) params.parent_id = parentId;
 
     const response = await apiClient.get<InterestCategory[]>('/interests/categories', { params });
+    return response.data;
+  },
+
+  // Get user's interests
+  getUserInterests: async (): Promise<UserInterest[]> => {
+    const response = await apiClient.get<UserInterest[]>('/interests/user/interests');
     return response.data;
   },
 };
