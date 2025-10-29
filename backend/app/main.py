@@ -45,6 +45,18 @@ def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/debug/cors")
+def debug_cors():
+    """Debug endpoint to check CORS configuration"""
+    return {
+        "cors_enabled": True,
+        "allow_origins": "*",
+        "allow_credentials": False,
+        "version": "v2_cors_wildcard",
+        "message": "CORS should allow all origins with this version"
+    }
+
+
 @app.get("/create-tables")
 def create_tables():
     """
