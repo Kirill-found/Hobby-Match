@@ -122,14 +122,14 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
         <div style={{ padding: '20px' }}>
           {/* Age Range */}
           <div style={{ marginBottom: '32px' }}>
-            <label style={{ fontSize: '16px', fontWeight: '600', color: '#FFFFFF', marginBottom: '12px', display: 'block' }}>
+            <label style={{ fontSize: '16px', fontWeight: '600', color: '#FFFFFF', marginBottom: '16px', display: 'block' }}>
               Возраст: {minAge} - {maxAge} лет
             </label>
-            <div style={{ position: 'relative', height: '40px' }}>
+            <div style={{ position: 'relative', height: '6px', marginTop: '10px', marginBottom: '10px' }}>
               {/* Track background */}
               <div style={{
                 position: 'absolute',
-                top: '17px',
+                top: 0,
                 left: 0,
                 right: 0,
                 height: '6px',
@@ -140,12 +140,13 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
               {/* Active track (between thumbs) */}
               <div style={{
                 position: 'absolute',
-                top: '17px',
+                top: 0,
                 left: `${((minAge - 18) / 42) * 100}%`,
                 right: `${100 - ((maxAge - 18) / 42) * 100}%`,
                 height: '6px',
                 borderRadius: '3px',
                 backgroundColor: '#FF4458',
+                pointerEvents: 'none',
               }} />
 
               {/* Min slider */}
@@ -156,21 +157,22 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
                 value={minAge}
                 onChange={(e) => {
                   const value = Number(e.target.value);
-                  if (value < maxAge) {
+                  if (value < maxAge - 1) {
                     setMinAge(value);
                   }
                 }}
                 style={{
                   position: 'absolute',
                   width: '100%',
-                  height: '40px',
-                  top: 0,
+                  top: '-7px',
                   left: 0,
                   background: 'transparent',
                   pointerEvents: 'all',
                   WebkitAppearance: 'none',
                   appearance: 'none',
                   zIndex: minAge > maxAge - 5 ? 5 : 3,
+                  margin: 0,
+                  padding: 0,
                 }}
               />
 
@@ -182,21 +184,22 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
                 value={maxAge}
                 onChange={(e) => {
                   const value = Number(e.target.value);
-                  if (value > minAge) {
+                  if (value > minAge + 1) {
                     setMaxAge(value);
                   }
                 }}
                 style={{
                   position: 'absolute',
                   width: '100%',
-                  height: '40px',
-                  top: 0,
+                  top: '-7px',
                   left: 0,
                   background: 'transparent',
                   pointerEvents: 'all',
                   WebkitAppearance: 'none',
                   appearance: 'none',
                   zIndex: 4,
+                  margin: 0,
+                  padding: 0,
                 }}
               />
             </div>
