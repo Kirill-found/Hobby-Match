@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/userStore';
 import UserCard from '../components/UserCard';
 import { discoveryApi, type DiscoveryUser } from '../api/discovery';
+import BottomNav from '../components/Layout/BottomNav';
 
 export default function DiscoveryPage() {
   const navigate = useNavigate();
@@ -192,11 +193,13 @@ export default function DiscoveryPage() {
       </div>
 
       {/* Hint */}
-      <div className="max-w-md mx-auto mt-6 text-center">
+      <div className="max-w-md mx-auto mt-6 text-center mb-20">
         <p className="text-sm text-gray-400">
           Свайпните влево, чтобы пропустить, или вправо, чтобы лайкнуть
         </p>
       </div>
+
+      <BottomNav />
     </div>
   );
 }
