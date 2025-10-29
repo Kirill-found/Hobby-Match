@@ -41,7 +41,7 @@ def health_check():
     return {"status": "healthy"}
 
 
-@app.post("/seed/interests")
+@app.get("/seed/interests")
 def seed_interests_endpoint():
     """
     Seed interests into database (run once)
