@@ -9,55 +9,40 @@ interface UserCardProps {
 
 export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
   const [showDetails, setShowDetails] = useState(false);
-
-  // Swipe state
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Touch/Mouse event handlers for swipe
   const handleDragStart = (clientX: number, clientY: number) => {
-    if (showDetails) return; // Don't swipe when details are open
+    if (showDetails) return;
     setIsDragging(true);
     setStartPos({ x: clientX, y: clientY });
   };
 
   const handleDragMove = (clientX: number, clientY: number) => {
     if (!isDragging || showDetails) return;
-
     const deltaX = clientX - startPos.x;
     const deltaY = clientY - startPos.y;
-
-    // Only allow horizontal swipes (ignore if vertical swipe is dominant)
     if (Math.abs(deltaY) < Math.abs(deltaX)) {
-      setDragOffset({ x: deltaX, y: deltaY * 0.3 }); // Reduce vertical movement
+      setDragOffset({ x: deltaX, y: deltaY * 0.3 });
     }
   };
 
   const handleDragEnd = () => {
     if (!isDragging || showDetails) return;
     setIsDragging(false);
-
-    const swipeThreshold = 100; // pixels to trigger swipe
+    const swipeThreshold = 100;
 
     if (Math.abs(dragOffset.x) > swipeThreshold) {
-      // Trigger swipe action
       if (dragOffset.x > 0) {
-        // Swiped right - Like
         animateSwipeOut('right');
-        setTimeout(() => {
-          onLike();
-        }, 300);
+        setTimeout(() => onLike(), 300);
       } else {
-        // Swiped left - Dislike
         animateSwipeOut('left');
-        setTimeout(() => {
-          onDislike();
-        }, 300);
+        setTimeout(() => onDislike(), 300);
       }
     } else {
-      // Return to center
       resetCard();
     }
   };
@@ -78,26 +63,21 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
     }
   };
 
-  // Calculate rotation based on drag distance
   const getRotation = () => {
-    const maxRotation = 15; // degrees
+    const maxRotation = 15;
     const rotation = (dragOffset.x / 300) * maxRotation;
     return Math.max(-maxRotation, Math.min(maxRotation, rotation));
   };
 
-  // Calculate opacity for like/dislike indicators
   const getLikeOpacity = () => Math.max(0, Math.min(1, dragOffset.x / 100));
   const getDislikeOpacity = () => Math.max(0, Math.min(1, -dragOffset.x / 100));
 
-  // Color mapping for interests
-  const getInterestColor = (index: number) => {
-    const colors = ['#8B5CF6', '#3B82F6', '#F97316']; // purple, blue, orange
-    return colors[index % colors.length];
-  };
+  const interestColors = ['#C873FF', '#4E9EFF', '#FF7A45', '#38D39F'];
+  const getInterestColor = (index: number) => interestColors[index % interestColors.length];
 
   return (
     <div className="relative w-full h-full">
-      {/* Main Card - Match/Twinby Style with Neon Border */}
+      {/* Main Card */}
       <div
         ref={cardRef}
         className="relative w-full overflow-hidden"
@@ -105,20 +85,12 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
           height: 'calc(100vh - 220px)',
           maxHeight: '650px',
           borderRadius: '24px',
-          backgroundColor: '#1A1A1A',
-          border: '2px solid transparent',
-          backgroundImage: 'linear-gradient(#1A1A1A, #1A1A1A), linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          backgroundOrigin: 'border-box',
-          backgroundClip: 'padding-box, border-box',
-          boxShadow: `
-            0 0 20px rgba(102, 126, 234, 0.3),
-            0 0 40px rgba(118, 75, 162, 0.2),
-            inset 0 0 60px rgba(102, 126, 234, 0.1)
-          `,
+          backgroundColor: '#1A1A22',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
           transform: isDragging
             ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${getRotation()}deg)`
             : 'translateX(0) translateY(0) rotate(0deg)',
-          transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+          transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           cursor: isDragging ? 'grabbing' : 'grab',
           touchAction: 'none',
         }}
@@ -146,13 +118,11 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             left: '40px',
             transform: 'translateY(-50%) rotate(-20deg)',
             fontSize: '80px',
-            fontWeight: 'bold',
-            color: '#00FF00',
-            textShadow: '0 0 20px rgba(0, 255, 0, 0.5)',
             opacity: getLikeOpacity(),
             pointerEvents: 'none',
             zIndex: 20,
             transition: 'opacity 0.1s ease-out',
+            filter: 'drop-shadow(0 0 20px rgba(56, 211, 159, 0.6))',
           }}
         >
           ❤️
@@ -166,13 +136,11 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             right: '40px',
             transform: 'translateY(-50%) rotate(20deg)',
             fontSize: '80px',
-            fontWeight: 'bold',
-            color: '#FF0000',
-            textShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
             opacity: getDislikeOpacity(),
             pointerEvents: 'none',
             zIndex: 20,
             transition: 'opacity 0.1s ease-out',
+            filter: 'drop-shadow(0 0 20px rgba(255, 122, 69, 0.6))',
           }}
         >
           ✖️
@@ -185,57 +153,58 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               src={user.photos[0]}
               alt={user.name}
               className="w-full h-full object-cover"
-              style={{ borderRadius: '20px 20px 0 0' }}
+              style={{ borderRadius: '24px 24px 0 0' }}
             />
           ) : (
             <div
               className="w-full h-full flex items-center justify-center text-9xl"
               style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '20px 20px 0 0',
+                background: 'linear-gradient(135deg, #C873FF 0%, #4E9EFF 100%)',
+                borderRadius: '24px 24px 0 0',
               }}
             >
               👤
             </div>
           )}
 
-          {/* Gradient overlay at bottom */}
+          {/* Gradient overlay */}
           <div
             style={{
               position: 'absolute',
               bottom: 0,
               left: 0,
               right: 0,
-              height: '40%',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+              height: '50%',
+              background: 'linear-gradient(to top, rgba(14, 14, 18, 0.95) 0%, transparent 100%)',
             }}
           />
 
-          {/* Close button */}
+          {/* Info button */}
           <button
             onClick={() => setShowDetails(!showDetails)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center"
             style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              backgroundColor: 'rgba(26, 26, 34, 0.8)',
               backdropFilter: 'blur(10px)',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFFFFF',
+              border: '1px solid rgba(200, 115, 255, 0.3)',
+              color: '#FFF',
               fontSize: '20px',
               cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(200, 115, 255, 0.2)';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(26, 26, 34, 0.8)';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           >
             ✕
           </button>
 
-          {/* User Info - Bottom Left on Photo */}
+          {/* User Info */}
           <div
             style={{
               position: 'absolute',
@@ -244,52 +213,43 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               right: '20px',
             }}
           >
-            {/* Name and Age */}
             <h2
+              className="text-3xl font-bold mb-1"
               style={{
-                fontSize: '32px',
-                fontWeight: '700',
-                color: '#FFFFFF',
-                marginBottom: '4px',
+                color: '#FFF',
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
               }}
             >
               {user.name}
-              {user.age && (
-                <span style={{ fontWeight: '700' }}>, {user.age}</span>
-              )}
+              {user.age && <span>, {user.age}</span>}
             </h2>
 
-            {/* Location */}
             {user.city && (
               <div
+                className="flex items-center gap-1 mb-3"
                 style={{
-                  color: '#FFFFFF',
-                  fontSize: '16px',
-                  fontWeight: '400',
-                  opacity: 0.9,
-                  marginBottom: '12px',
+                  color: '#B7B7C3',
+                  fontSize: '15px',
                 }}
               >
-                {user.city}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="9" r="2.5"/>
+                </svg>
+                <span>{user.city}</span>
               </div>
             )}
 
-            {/* Interest Badges - Colorful */}
             {user.interests && user.interests.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="flex flex-wrap gap-2">
                 {user.interests.slice(0, 3).map((interest, index) => (
                   <div
                     key={index}
+                    className="px-3 py-1.5 rounded-xl text-sm font-semibold"
                     style={{
                       backgroundColor: getInterestColor(index),
-                      padding: '6px 14px',
-                      borderRadius: '16px',
-                      color: '#FFFFFF',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
+                      color: '#FFF',
+                      boxShadow: `0 4px 12px ${getInterestColor(index)}40`,
                     }}
                   >
                     {interest.name}
@@ -300,15 +260,13 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
           </div>
         </div>
 
-        {/* Bio Section - White area under photo */}
-        <div style={{ padding: '20px', height: '30%', display: 'flex', flexDirection: 'column' }}>
+        {/* Bio Section */}
+        <div className="p-5" style={{ height: '30%', display: 'flex', flexDirection: 'column' }}>
           {user.bio && (
             <p
+              className="text-sm mb-4 leading-relaxed"
               style={{
-                color: '#FFFFFF',
-                fontSize: '15px',
-                lineHeight: '1.5',
-                marginBottom: '16px',
+                color: '#B7B7C3',
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
@@ -319,75 +277,50 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             </p>
           )}
 
-          {/* Say Hello Button */}
+          {/* Action Button */}
           <button
             onClick={onLike}
+            className="w-full h-12 rounded-full font-bold text-base flex items-center justify-center gap-2"
             style={{
-              width: '100%',
-              height: '56px',
-              borderRadius: '28px',
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              background: 'linear-gradient(135deg, #38D39F 0%, #4E9EFF 100%)',
+              color: '#FFF',
               border: 'none',
-              color: '#FFFFFF',
-              fontSize: '18px',
-              fontWeight: '700',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
+              boxShadow: '0 8px 20px rgba(56, 211, 159, 0.25)',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
               marginTop: 'auto',
-              transition: 'transform 0.2s ease, filter 0.2s ease',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'scale(0.98)';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.filter = 'brightness(1.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.filter = 'brightness(1)';
-            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 12px 28px rgba(56, 211, 159, 0.35)'}
+            onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 8px 20px rgba(56, 211, 159, 0.25)'}
           >
             <span>👋</span>
             <span>Say Hello</span>
           </button>
         </div>
 
-        {/* Details Modal - Swipe Up */}
+        {/* Details Modal */}
         {showDetails && (
           <div
             onClick={() => setShowDetails(false)}
+            className="absolute inset-0 overflow-y-auto p-6"
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.95)',
+              backgroundColor: 'rgba(14, 14, 18, 0.98)',
+              backdropFilter: 'blur(10px)',
               borderRadius: '24px',
-              overflowY: 'auto',
-              padding: '24px',
-              zIndex: 10,
-              animation: 'slideUp 0.3s ease-out',
+              zIndex: 30,
+              animation: 'slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            {/* Close button */}
-            <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+            <div className="text-right mb-4">
               <button
                 onClick={() => setShowDetails(false)}
+                className="text-3xl"
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#FFFFFF',
-                  fontSize: '24px',
+                  color: '#B7B7C3',
                   cursor: 'pointer',
                 }}
               >
@@ -395,91 +328,49 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               </button>
             </div>
 
-            {/* Small photo */}
             {user.photos && user.photos.length > 0 && (
               <img
                 src={user.photos[0]}
                 alt={user.name}
-                style={{
-                  width: '120px',
-                  height: '120px',
-                  borderRadius: '16px',
-                  objectFit: 'cover',
-                  marginBottom: '20px',
-                }}
+                className="w-32 h-32 rounded-2xl object-cover mb-5"
               />
             )}
 
-            {/* Name */}
-            <h2
-              style={{
-                fontSize: '28px',
-                fontWeight: 'bold',
-                color: '#FFFFFF',
-                marginBottom: '8px',
-              }}
-            >
+            <h2 className="text-3xl font-bold mb-2" style={{ color: '#FFF' }}>
               {user.name}, {user.age}
             </h2>
 
-            {/* Location */}
             {user.city && (
-              <p style={{ color: '#999999', marginBottom: '24px' }}>
-                📍 {user.city}
+              <p className="flex items-center gap-1 mb-6" style={{ color: '#B7B7C3' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="9" r="2.5"/>
+                </svg>
+                {user.city}
               </p>
             )}
 
-            {/* About section */}
             {user.bio && (
-              <div style={{ marginBottom: '24px' }}>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    marginBottom: '12px',
-                  }}
-                >
-                  О себе
-                </h3>
-                <p
-                  style={{
-                    color: '#CCCCCC',
-                    lineHeight: '1.6',
-                    fontSize: '15px',
-                  }}
-                >
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#FFF' }}>О себе</h3>
+                <p className="text-base leading-relaxed" style={{ color: '#B7B7C3' }}>
                   {user.bio}
                 </p>
               </div>
             )}
 
-            {/* Interests */}
             {user.interests && user.interests.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    marginBottom: '12px',
-                  }}
-                >
-                  Интересы
-                </h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#FFF' }}>Интересы</h3>
+                <div className="flex flex-wrap gap-2">
                   {user.interests.map((interest, index) => (
                     <span
                       key={index}
+                      className="px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
                       style={{
-                        backgroundColor: '#2A2A2A',
-                        color: '#FFFFFF',
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        fontSize: '14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
+                        backgroundColor: '#1A1A22',
+                        color: '#FFF',
+                        border: `1px solid ${getInterestColor(index)}40`,
                       }}
                     >
                       <span>{interest.icon}</span>
@@ -490,22 +381,12 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               </div>
             )}
 
-            {/* Reliability */}
             {user.reliability_score !== undefined && user.reliability_score > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    marginBottom: '12px',
-                  }}
-                >
-                  Надежность
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '24px' }}>⭐</span>
-                  <span style={{ color: '#FFFFFF', fontSize: '20px', fontWeight: '600' }}>
+              <div>
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#FFF' }}>Надежность</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⭐</span>
+                  <span className="text-xl font-bold" style={{ color: '#FF7A45' }}>
                     {user.reliability_score.toFixed(1)}
                   </span>
                 </div>
