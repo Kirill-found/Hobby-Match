@@ -9,7 +9,6 @@ interface UserCardProps {
 
 export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
   const [showDetails, setShowDetails] = useState(false);
-  const distance = user.distance_km;
 
   // Swipe state
   const [isDragging, setIsDragging] = useState(false);
