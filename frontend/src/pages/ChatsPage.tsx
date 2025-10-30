@@ -206,7 +206,7 @@ export default function ChatsPage() {
                     <div className="relative">
                       <Avatar className="w-14 h-14 border-2 border-primary/20 group-hover:border-primary/40 transition-colors">
                         <AvatarImage
-                          src={conversation.partner_photo}
+                          src={conversation.partner_photo || undefined}
                           alt={conversation.partner_name}
                         />
                         <AvatarFallback className="bg-gradient-to-br from-purple-400 to-pink-400 text-white font-semibold">
