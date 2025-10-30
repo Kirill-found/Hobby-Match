@@ -59,69 +59,93 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end"
       style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'flex-end',
         animation: 'fadeIn 0.2s ease-out',
       }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl mx-auto"
         style={{
-          backgroundColor: '#1A1A22',
+          backgroundColor: '#1A1A1A',
           borderRadius: '24px 24px 0 0',
+          width: '100%',
+          maxWidth: '600px',
+          margin: '0 auto',
           maxHeight: '85vh',
           overflowY: 'auto',
-          animation: 'slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          animation: 'slideUp 0.3s ease-out',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div
-          className="sticky top-0 z-10 flex items-center justify-between px-6 py-5"
           style={{
-            backgroundColor: '#1A1A22',
-            borderBottom: '1px solid rgba(200, 115, 255, 0.1)',
+            padding: '20px',
+            borderBottom: '1px solid #2A2A2A',
+            position: 'sticky',
+            top: 0,
+            backgroundColor: '#1A1A1A',
+            zIndex: 10,
           }}
         >
-          <h2 className="text-xl font-bold" style={{ color: '#FFF' }}>Фильтры</h2>
-          <button
-            onClick={onClose}
-            className="text-3xl leading-none"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#B7B7C3',
-              cursor: 'pointer',
-              padding: 0,
-              transition: 'color 0.2s ease',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#FFF'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#B7B7C3'}
-          >
-            ×
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#FFFFFF', margin: 0 }}>
+              Фильтры
+            </h2>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#666666',
+                fontSize: '28px',
+                cursor: 'pointer',
+                padding: '0',
+                lineHeight: '1',
+              }}
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-6">
+        <div style={{ padding: '20px' }}>
           {/* Age Range */}
-          <div className="mb-8">
-            <label className="block text-base font-bold mb-4" style={{ color: '#FFF' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ fontSize: '16px', fontWeight: '600', color: '#FFFFFF', marginBottom: '16px', display: 'block' }}>
               Возраст: {minAge} - {maxAge} лет
             </label>
-            <div className="relative h-2 mt-4 mb-4">
+            <div style={{ position: 'relative', height: '6px', marginTop: '10px', marginBottom: '10px' }}>
               {/* Track background */}
-              <div className="absolute top-0 left-0 right-0 h-2 rounded-full" style={{
-                backgroundColor: '#232329',
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '6px',
+                borderRadius: '3px',
+                backgroundColor: '#2A2A2A',
               }} />
 
-              {/* Active track */}
-              <div className="absolute top-0 h-2 rounded-full" style={{
+              {/* Active track (between thumbs) */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
                 left: `${((minAge - 18) / 42) * 100}%`,
                 right: `${100 - ((maxAge - 18) / 42) * 100}%`,
-                background: 'linear-gradient(90deg, #C873FF 0%, #4E9EFF 100%)',
+                height: '6px',
+                borderRadius: '3px',
+                backgroundColor: '#FF4458',
                 pointerEvents: 'none',
               }} />
 
@@ -137,8 +161,13 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
                     setMinAge(value);
                   }
                 }}
-                className="absolute w-full top-[-5px] left-0 bg-transparent pointer-events-auto"
                 style={{
+                  position: 'absolute',
+                  width: '100%',
+                  top: '-7px',
+                  left: 0,
+                  background: 'transparent',
+                  pointerEvents: 'all',
                   WebkitAppearance: 'none',
                   appearance: 'none',
                   zIndex: minAge > maxAge - 5 ? 5 : 3,
@@ -159,8 +188,13 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
                     setMaxAge(value);
                   }
                 }}
-                className="absolute w-full top-[-5px] left-0 bg-transparent pointer-events-auto"
                 style={{
+                  position: 'absolute',
+                  width: '100%',
+                  top: '-7px',
+                  left: 0,
+                  background: 'transparent',
+                  pointerEvents: 'all',
                   WebkitAppearance: 'none',
                   appearance: 'none',
                   zIndex: 4,
@@ -172,8 +206,8 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
           </div>
 
           {/* Distance */}
-          <div className="mb-8">
-            <label className="block text-base font-bold mb-4" style={{ color: '#FFF' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ fontSize: '16px', fontWeight: '600', color: '#FFFFFF', marginBottom: '12px', display: 'block' }}>
               Расстояние: до {maxDistance} км
             </label>
             <input
@@ -182,9 +216,12 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
               max="100"
               value={maxDistance}
               onChange={(e) => setMaxDistance(Number(e.target.value))}
-              className="w-full h-2 rounded-full outline-none"
               style={{
-                background: `linear-gradient(to right, #4E9EFF 0%, #4E9EFF ${maxDistance}%, #232329 ${maxDistance}%, #232329 100%)`,
+                width: '100%',
+                height: '6px',
+                borderRadius: '3px',
+                outline: 'none',
+                background: `linear-gradient(to right, #FF4458 0%, #FF4458 ${maxDistance}%, #2A2A2A ${maxDistance}%, #2A2A2A 100%)`,
                 WebkitAppearance: 'none',
                 appearance: 'none',
               }}
@@ -192,90 +229,80 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
           </div>
 
           {/* Interests */}
-          <div className="mb-6">
-            <label className="block text-base font-bold mb-4" style={{ color: '#FFF' }}>
-              Хобби {selectedInterests.length > 0 && <span style={{ color: '#C873FF' }}>({selectedInterests.length})</span>}
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ fontSize: '16px', fontWeight: '600', color: '#FFFFFF', marginBottom: '12px', display: 'block' }}>
+              Хобби {selectedInterests.length > 0 && `(${selectedInterests.length})`}
             </label>
-            <div className="flex flex-wrap gap-2">
-              {interests.slice(0, 20).map((interest) => {
-                const isSelected = selectedInterests.includes(interest.id);
-                return (
-                  <button
-                    key={interest.id}
-                    onClick={() => toggleInterest(interest.id)}
-                    className="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2"
-                    style={{
-                      backgroundColor: isSelected ? '#C873FF' : '#232329',
-                      color: '#FFF',
-                      border: 'none',
-                      cursor: 'pointer',
-                      boxShadow: isSelected ? '0 4px 12px rgba(200, 115, 255, 0.25)' : 'none',
-                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.backgroundColor = '#2C2C34';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.backgroundColor = '#232329';
-                      }
-                    }}
-                  >
-                    <span>{interest.icon}</span>
-                    <span>{interest.name}</span>
-                  </button>
-                );
-              })}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {interests.slice(0, 20).map((interest) => (
+                <button
+                  key={interest.id}
+                  onClick={() => toggleInterest(interest.id)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    border: 'none',
+                    backgroundColor: selectedInterests.includes(interest.id) ? '#FF4458' : '#2A2A2A',
+                    color: '#FFFFFF',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span>{interest.icon}</span>
+                  <span>{interest.name}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div
-          className="sticky bottom-0 flex gap-3 px-6 py-5"
           style={{
-            backgroundColor: '#1A1A22',
-            borderTop: '1px solid rgba(200, 115, 255, 0.1)',
+            padding: '20px',
+            borderTop: '1px solid #2A2A2A',
+            display: 'flex',
+            gap: '12px',
+            position: 'sticky',
+            bottom: 0,
+            backgroundColor: '#1A1A1A',
           }}
         >
           <button
             onClick={handleReset}
-            className="flex-1 h-12 rounded-full font-bold text-base"
             style={{
-              backgroundColor: '#232329',
-              color: '#FFF',
-              border: '1px solid rgba(200, 115, 255, 0.2)',
+              flex: 1,
+              padding: '14px',
+              borderRadius: '12px',
+              border: '1px solid #2A2A2A',
+              backgroundColor: 'transparent',
+              color: '#FFFFFF',
+              fontSize: '16px',
+              fontWeight: '600',
               cursor: 'pointer',
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#2C2C34';
-              e.currentTarget.style.borderColor = 'rgba(200, 115, 255, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#232329';
-              e.currentTarget.style.borderColor = 'rgba(200, 115, 255, 0.2)';
+              transition: 'all 0.2s',
             }}
           >
             Сбросить
           </button>
           <button
             onClick={handleApply}
-            className="flex-[2] h-12 rounded-full font-bold text-base"
             style={{
-              background: 'linear-gradient(135deg, #C873FF 0%, #4E9EFF 100%)',
-              color: '#FFF',
+              flex: 2,
+              padding: '14px',
+              borderRadius: '12px',
               border: 'none',
+              backgroundColor: '#FF4458',
+              color: '#FFFFFF',
+              fontSize: '16px',
+              fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 8px 20px rgba(200, 115, 255, 0.25)',
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'all 0.2s',
             }}
-            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 12px 28px rgba(200, 115, 255, 0.35)'}
-            onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 8px 20px rgba(200, 115, 255, 0.25)'}
           >
             Применить
           </button>
@@ -288,53 +315,43 @@ export default function FilterModal({ isOpen, onClose, onApply, currentFilters, 
           to { opacity: 1; }
         }
         @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+          from {
+            transform: translateY(100%);
+          }
+          to {
+            transform: translateY(0);
+          }
         }
-
         input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: #FFF;
+          background: #FFFFFF;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(200, 115, 255, 0.4);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
           position: relative;
           z-index: 10;
-          transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-          transform: scale(1.2);
-        }
-
         input[type="range"]::-moz-range-thumb {
           width: 20px;
           height: 20px;
           border-radius: 50%;
-          background: #FFF;
+          background: #FFFFFF;
           cursor: pointer;
           border: none;
-          box-shadow: 0 4px 12px rgba(200, 115, 255, 0.4);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
           position: relative;
           z-index: 10;
-          transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        input[type="range"]::-moz-range-thumb:hover {
-          transform: scale(1.2);
-        }
-
         input[type="range"]::-webkit-slider-runnable-track {
           background: transparent;
-          height: 8px;
+          height: 6px;
         }
-
         input[type="range"]::-moz-range-track {
           background: transparent;
-          height: 8px;
+          height: 6px;
         }
       `}</style>
     </div>
