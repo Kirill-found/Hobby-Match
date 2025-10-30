@@ -193,6 +193,79 @@ export default function DiscoveryPage() {
       className="min-h-screen"
       style={{ backgroundColor: '#0F0F0F', paddingTop: '72px', paddingBottom: '88px' }}
     >
+      {/* Header - Match Style */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '60px',
+          backgroundColor: '#1a1a2e',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 16px',
+          zIndex: 30,
+        }}
+      >
+        {/* Left: Avatar */}
+        <div
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            backgroundColor: '#667eea',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '20px',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate('/profile')}
+        >
+          {user?.first_name ? user.first_name[0].toUpperCase() : '👤'}
+        </div>
+
+        {/* Center: Match Title */}
+        <h1
+          style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+          }}
+        >
+          Match
+        </h1>
+
+        {/* Right: Filter Button */}
+        <button
+          onClick={() => setShowFilterModal(true)}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            backgroundColor: '#2A2A2A',
+            border: '1px solid #3A3A3A',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V19L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
       {/* Match Notification */}
       {showMatchNotification && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
@@ -207,43 +280,6 @@ export default function DiscoveryPage() {
           </div>
         </div>
       )}
-
-      {/* Filter Button - Fixed at Top Right */}
-      <div
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          zIndex: 20,
-        }}
-      >
-        <button
-          onClick={() => setShowFilterModal(true)}
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            backgroundColor: '#1A1A1A',
-            border: '1px solid #2A2A2A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-          }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V19L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z"
-              stroke="#FFFFFF"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
 
       {/* Card Container */}
       <div className="max-w-md mx-auto px-4">
