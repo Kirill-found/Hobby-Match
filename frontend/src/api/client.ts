@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+// Base URL without /api/v1 for static files
+const BASE_URL = API_URL.replace('/api/v1', '');
 
 export const apiClient = axios.create({
   baseURL: API_URL,
@@ -8,6 +10,14 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Helper to get full photo URL
+export const getPhotoUrl = (photoPath: string): string => {
+  if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+    return photoPath; // Already full URL
+  }
+  return `${BASE_URL}${photoPath}`; // /uploads/photos/... -> http://localhost:8000/uploads/photos/...
+};
 
 // Add auth token to requests
 apiClient.interceptors.request.use((config) => {

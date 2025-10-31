@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { profileApi, type UserProfile } from '../api/profile';
 import { interestsApi, type UserInterest } from '../api/interests';
+import { getPhotoUrl } from '../api/client';
 import BottomNav from '../components/Layout/BottomNav';
 import Button from '../components/common/Button';
 
@@ -163,7 +164,7 @@ export default function ProfilePage() {
             >
               {profile.photos && profile.photos.length > 0 ? (
                 <img
-                  src={profile.photos[0]}
+                  src={getPhotoUrl(profile.photos[0])}
                   alt={profile.first_name}
                   className="w-full h-full object-cover"
                 />

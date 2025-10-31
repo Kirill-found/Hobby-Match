@@ -6,6 +6,9 @@ from app.schemas.location import LocationUpdate, CityGeocodeRequest, CityGeocode
 from app.models.user import User
 from app.api.deps import get_current_user
 import httpx
+import os
+import uuid
+from pathlib import Path
 
 router = APIRouter()
 
@@ -48,17 +51,44 @@ def complete_onboarding(
 
 
 @router.post("/photos")
-def upload_photo(
+async def upload_photo(
     photo: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Upload profile photo
-    TODO: Implement S3/R2 upload
+    Saves to local uploads directory
     """
-    # Placeholder - implement S3 upload
-    photo_url = f"https://cdn.hobbyma.app/photos/user{current_user.id}_photo.jpg"
+    # Validate file type
+    if not photo.content_type or not photo.content_type.startswith('image/'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be an image"
+        )
+
+    # Create uploads directory if it doesn't exist
+    upload_dir = Path("uploads/photos")
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    # Generate unique filename
+    file_extension = photo.filename.split('.')[-1] if photo.filename and '.' in photo.filename else 'jpg'
+    unique_filename = f"{current_user.id}_{uuid.uuid4()}.{file_extension}"
+    file_path = upload_dir / unique_filename
+
+    # Save file
+    try:
+        contents = await photo.read()
+        with open(file_path, 'wb') as f:
+            f.write(contents)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save file: {str(e)}"
+        )
+
+    # Generate URL (will be served by static files)
+    photo_url = f"/uploads/photos/{unique_filename}"
 
     # Add to user's photos
     if current_user.photos is None:

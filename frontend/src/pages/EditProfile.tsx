@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { profileApi, type UserProfile } from '../api/profile';
 import { interestsApi, type UserInterest } from '../api/interests';
+import { getPhotoUrl } from '../api/client';
 import Button from '../components/common/Button';
 
 export default function EditProfile() {
@@ -448,7 +449,7 @@ export default function EditProfile() {
                 }}
               >
                 <img
-                  src={photo}
+                  src={getPhotoUrl(photo)}
                   alt={`Photo ${index + 1}`}
                   className="w-full h-full object-cover"
                 />

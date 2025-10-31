@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import engine, Base
 from starlette.middleware.base import BaseHTTPMiddleware
+from pathlib import Path
 
 # Import all models to ensure they are registered with Base
 from app.models import user, interest, swipe, match, message, meeting, payment, report
@@ -46,6 +48,11 @@ class CustomCORSMiddleware(BaseHTTPMiddleware):
 
 # Add custom CORS middleware
 app.add_middleware(CustomCORSMiddleware)
+
+# Mount static files directory for uploaded photos
+uploads_dir = Path("uploads")
+uploads_dir.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 @app.get("/")
