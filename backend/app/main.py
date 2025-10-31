@@ -71,6 +71,27 @@ def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/debug/uploads")
+def debug_uploads():
+    """Debug endpoint to check uploads directory"""
+    import os
+    uploads_exists = os.path.exists("uploads")
+    uploads_photos_exists = os.path.exists("uploads/photos")
+
+    files = []
+    if uploads_photos_exists:
+        files = os.listdir("uploads/photos")
+
+    return {
+        "uploads_exists": uploads_exists,
+        "uploads_photos_exists": uploads_photos_exists,
+        "files_count": len(files),
+        "files": files[:10],  # First 10 files
+        "staticfiles_mounted": True,
+        "cwd": os.getcwd()
+    }
+
+
 @app.get("/debug/cors")
 def debug_cors():
     """Debug endpoint to check CORS configuration"""
