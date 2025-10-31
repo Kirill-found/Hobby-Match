@@ -1,7 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
+/* BRANDBOOK: Deep Space background */
 * {
   margin: 0;
   padding: 0;
@@ -9,12 +8,10 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0F0F0F;
+  background-color: #0D1117;
   color: #FFFFFF;
   overflow-x: hidden;
 }
@@ -22,45 +19,45 @@ body {
 #root {
   min-height: 100vh;
   width: 100%;
+  background-color: #0D1117;
 }
 
 /* Telegram WebApp specific styles */
 .app-container {
   min-height: 100vh;
   padding-bottom: env(safe-area-inset-bottom);
-  background-color: #0F0F0F;
+  background-color: #0D1117;
 }
 
-/* Custom scrollbar - minimal */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #161B22;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
-  border-radius: 2px;
+  background: #BFFF00;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c0c0c0;
+  background: #A3E000;
 }
 
-/* Bottom sheet slide-up animation */
-@keyframes slide-up {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
