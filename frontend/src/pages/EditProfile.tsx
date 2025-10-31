@@ -14,11 +14,10 @@ export default function EditProfile() {
   const [interests, setInterests] = useState<UserInterest[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
 
-  // Interest selector modal state
+  // Interest selector modal state - supports up to 4 levels
   const [showInterestModal, setShowInterestModal] = useState(false);
-  const [level1Categories, setLevel1Categories] = useState<any[]>([]);
-  const [selectedLevel1, setSelectedLevel1] = useState<number | null>(null);
-  const [level2Categories, setLevel2Categories] = useState<any[]>([]);
+  const [navigationStack, setNavigationStack] = useState<any[]>([]); // Stack of selected categories
+  const [currentLevelCategories, setCurrentLevelCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSkillLevel, setSelectedSkillLevel] = useState<string | null>(null);
 
@@ -187,40 +186,65 @@ export default function EditProfile() {
     }
   };
 
-  // Interest management functions
-  const loadLevel1Categories = async () => {
+  // Interest management functions - dynamic level support
+  const loadCategoriesForLevel = async (level: number, parentId?: number) => {
     try {
-      const categories = await interestsApi.getCategories(1);
-      setLevel1Categories(categories);
+      const categories = await interestsApi.getCategories(level, parentId);
+      return categories;
     } catch (error) {
-      console.error('Failed to load level 1 categories:', error);
-    }
-  };
-
-  const loadLevel2Categories = async (parentId: number) => {
-    try {
-      const categories = await interestsApi.getCategories(2, parentId);
-      setLevel2Categories(categories);
-    } catch (error) {
-      console.error('Failed to load level 2 categories:', error);
+      console.error(`Failed to load level ${level} categories:`, error);
+      return [];
     }
   };
 
   const handleAddInterestClick = async () => {
     setShowInterestModal(true);
-    await loadLevel1Categories();
-  };
-
-  const handleLevel1Select = async (categoryId: number) => {
-    setSelectedLevel1(categoryId);
+    setNavigationStack([]);
     setSelectedCategory(null);
     setSelectedSkillLevel(null);
-    await loadLevel2Categories(categoryId);
+
+    // Load level 1 categories
+    const level1 = await loadCategoriesForLevel(1);
+    setCurrentLevelCategories(level1);
   };
 
-  const handleLevel2Select = (category: any) => {
-    setSelectedCategory(category);
+  const handleCategorySelect = async (category: any) => {
+    // Check if this category has children
+    const nextLevel = category.level + 1;
+    const children = await loadCategoriesForLevel(nextLevel, category.id);
+
+    if (children.length > 0) {
+      // Has children - navigate deeper
+      setNavigationStack(prev => [...prev, category]);
+      setCurrentLevelCategories(children);
+      setSelectedCategory(null);
+      setSelectedSkillLevel(null);
+    } else {
+      // No children - this is a leaf category, select it
+      setSelectedCategory(category);
+      setSelectedSkillLevel(null);
+    }
+  };
+
+  const handleNavigateBack = async () => {
+    if (navigationStack.length === 0) return;
+
+    const newStack = [...navigationStack];
+    newStack.pop();
+    setNavigationStack(newStack);
+    setSelectedCategory(null);
     setSelectedSkillLevel(null);
+
+    if (newStack.length === 0) {
+      // Back to level 1
+      const level1 = await loadCategoriesForLevel(1);
+      setCurrentLevelCategories(level1);
+    } else {
+      // Load children of the last item in stack
+      const parent = newStack[newStack.length - 1];
+      const children = await loadCategoriesForLevel(parent.level + 1, parent.id);
+      setCurrentLevelCategories(children);
+    }
   };
 
   const handleAddInterest = async () => {
@@ -237,7 +261,7 @@ export default function EditProfile() {
       );
       setInterests(prev => [...prev, newInterest]);
       setShowInterestModal(false);
-      setSelectedLevel1(null);
+      setNavigationStack([]);
       setSelectedCategory(null);
       setSelectedSkillLevel(null);
     } catch (error: any) {
@@ -895,58 +919,43 @@ export default function EditProfile() {
               </button>
             </div>
 
-            {/* Step 1: Select Level 1 Category */}
-            {!selectedLevel1 && (
-              <div>
-                <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
-                  Выберите категорию:
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {level1Categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleLevel1Select(category.id)}
-                      className="p-4 rounded-xl flex flex-col items-center gap-2 hover:border-lime-400 transition-colors"
-                      style={{
-                        backgroundColor: '#0D1117',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                      }}
-                    >
-                      <span className="text-3xl">{category.icon}</span>
-                      <span className="text-sm font-medium" style={{ color: '#FFFFFF' }}>
-                        {category.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+            {/* Breadcrumb navigation */}
+            {navigationStack.length > 0 && (
+              <div className="mb-4 flex items-center gap-2 text-sm" style={{ color: '#B4B4C8' }}>
+                {navigationStack.map((cat, idx) => (
+                  <span key={cat.id}>
+                    {cat.icon} {cat.name}
+                    {idx < navigationStack.length - 1 && <span className="mx-2">→</span>}
+                  </span>
+                ))}
               </div>
             )}
 
-            {/* Step 2: Select Level 2 Category */}
-            {selectedLevel1 && !selectedCategory && (
+            {/* Category selection - works for any level */}
+            {!selectedCategory && (
               <div>
-                <button
-                  onClick={() => {
-                    setSelectedLevel1(null);
-                    setLevel2Categories([]);
-                  }}
-                  className="flex items-center gap-2 mb-4"
-                  style={{ color: '#BFFF00' }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className="text-sm font-medium">Назад</span>
-                </button>
+                {/* Back button */}
+                {navigationStack.length > 0 && (
+                  <button
+                    onClick={handleNavigateBack}
+                    className="flex items-center gap-2 mb-4"
+                    style={{ color: '#BFFF00' }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="text-sm font-medium">Назад</span>
+                  </button>
+                )}
 
                 <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
-                  Выберите интерес:
+                  {navigationStack.length === 0 ? 'Выберите категорию:' : 'Выберите интерес:'}
                 </p>
                 <div className="grid grid-cols-2 gap-3">
-                  {level2Categories.map((category) => (
+                  {currentLevelCategories.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => handleLevel2Select(category)}
+                      onClick={() => handleCategorySelect(category)}
                       className="p-4 rounded-xl flex flex-col items-center gap-2 hover:border-lime-400 transition-colors"
                       style={{
                         backgroundColor: '#0D1117',
@@ -963,14 +972,11 @@ export default function EditProfile() {
               </div>
             )}
 
-            {/* Step 3: Select Skill Level */}
+            {/* Skill level selection */}
             {selectedCategory && (
               <div>
                 <button
-                  onClick={() => {
-                    setSelectedCategory(null);
-                    setSelectedSkillLevel(null);
-                  }}
+                  onClick={handleNavigateBack}
                   className="flex items-center gap-2 mb-4"
                   style={{ color: '#BFFF00' }}
                 >
