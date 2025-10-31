@@ -248,15 +248,21 @@ export default function EditProfile() {
   };
 
   const handleAddInterest = async () => {
-    if (!selectedCategory || !selectedSkillLevel) {
-      alert('Выберите интерес и уровень навыка');
+    if (!selectedCategory) {
+      alert('Выберите интерес');
+      return;
+    }
+
+    // Check if skill level is required for this category
+    if (selectedCategory.requires_skill_level && !selectedSkillLevel) {
+      alert('Выберите уровень навыка');
       return;
     }
 
     try {
       const newInterest = await interestsApi.addUserInterest(
         selectedCategory.id,
-        selectedSkillLevel,
+        selectedCategory.requires_skill_level ? selectedSkillLevel : null,
         false
       );
       setInterests(prev => [...prev, newInterest]);
@@ -993,27 +999,37 @@ export default function EditProfile() {
                   </span>
                 </div>
 
-                <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
-                  Выберите уровень навыка:
-                </p>
-                <div className="space-y-3">
-                  {['новичок', 'любитель', 'продвинутый', 'профессионал'].map((level) => (
-                    <button
-                      key={level}
-                      onClick={() => setSelectedSkillLevel(level)}
-                      className="w-full p-4 rounded-xl font-medium transition-all"
-                      style={{
-                        backgroundColor: selectedSkillLevel === level ? '#BFFF00' : '#0D1117',
-                        border: selectedSkillLevel === level ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-                        color: selectedSkillLevel === level ? '#0D1117' : '#FFFFFF',
-                      }}
-                    >
-                      {level.charAt(0).toUpperCase() + level.slice(1)}
-                    </button>
-                  ))}
-                </div>
+                {/* Show skill level selection only if required for this category */}
+                {selectedCategory.requires_skill_level ? (
+                  <>
+                    <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
+                      Выберите уровень навыка:
+                    </p>
+                    <div className="space-y-3">
+                      {['новичок', 'любитель', 'продвинутый', 'профессионал'].map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setSelectedSkillLevel(level)}
+                          className="w-full p-4 rounded-xl font-medium transition-all"
+                          style={{
+                            backgroundColor: selectedSkillLevel === level ? '#BFFF00' : '#0D1117',
+                            border: selectedSkillLevel === level ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+                            color: selectedSkillLevel === level ? '#0D1117' : '#FFFFFF',
+                          }}
+                        >
+                          {level.charAt(0).toUpperCase() + level.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
+                    Нажмите "Добавить" чтобы добавить этот интерес в профиль
+                  </p>
+                )}
 
-                {selectedSkillLevel && (
+                {/* Show button if skill level selected OR not required */}
+                {(selectedCategory.requires_skill_level ? selectedSkillLevel : true) && (
                   <Button
                     onClick={handleAddInterest}
                     className="w-full mt-6 py-3 rounded-xl font-semibold"

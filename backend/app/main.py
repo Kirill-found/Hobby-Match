@@ -296,19 +296,19 @@ def seed_interests_internal(db):
     # Using parent_name for easier management, will be resolved to parent_id
     interests_data = [
         # LEVEL 1 CATEGORIES
-        {"name": "Спорт", "icon": "⚽", "level": 1, "parent_name": None},
-        {"name": "Творчество", "icon": "🎨", "level": 1, "parent_name": None},
-        {"name": "Игры", "icon": "🎮", "level": 1, "parent_name": None},
-        {"name": "Активный отдых", "icon": "🏕️", "level": 1, "parent_name": None},
-        {"name": "Образование", "icon": "📖", "level": 1, "parent_name": None},
-        {"name": "Кулинария", "icon": "🍳", "level": 1, "parent_name": None},
-        {"name": "Путешествия", "icon": "✈️", "level": 1, "parent_name": None},
-        {"name": "Животные", "icon": "🐾", "level": 1, "parent_name": None},
-        {"name": "Технологии", "icon": "💻", "level": 1, "parent_name": None},
-        {"name": "Психология", "icon": "🧠", "level": 1, "parent_name": None},
-        {"name": "Рукоделие", "icon": "🧵", "level": 1, "parent_name": None},
-        {"name": "Автомобили", "icon": "🚗", "level": 1, "parent_name": None},
-        {"name": "Другое", "icon": "✨", "level": 1, "parent_name": None},
+        {"name": "Спорт", "icon": "⚽", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Творчество", "icon": "🎨", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Игры", "icon": "🎮", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Активный отдых", "icon": "🏕️", "level": 1, "parent_name": None},  # Mixed - some need skills, some don't
+        {"name": "Образование", "icon": "📖", "level": 1, "parent_name": None},  # Mixed
+        {"name": "Кулинария", "icon": "🍳", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Путешествия", "icon": "✈️", "level": 1, "parent_name": None, "requires_skill_level": False},  # Just interest
+        {"name": "Животные", "icon": "🐾", "level": 1, "parent_name": None, "requires_skill_level": False},  # Just interest
+        {"name": "Технологии", "icon": "💻", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Психология", "icon": "🧠", "level": 1, "parent_name": None, "requires_skill_level": False},  # Just interest
+        {"name": "Рукоделие", "icon": "🧵", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Автомобили", "icon": "🚗", "level": 1, "parent_name": None},  # Skill level makes sense
+        {"name": "Другое", "icon": "✨", "level": 1, "parent_name": None, "requires_skill_level": False},  # Just interest
 
         # СПОРТ - LEVEL 2
         {"name": "Командные виды", "icon": "👥", "level": 2, "parent_name": "Спорт"},
@@ -454,10 +454,10 @@ def seed_interests_internal(db):
         {"name": "Импровизация", "icon": "🎭", "level": 3, "parent_name": "Театр и кино"},
 
         # Литература - Level 3
-        {"name": "Писательство", "icon": "✍️", "level": 3, "parent_name": "Литература"},
-        {"name": "Поэзия", "icon": "📝", "level": 3, "parent_name": "Литература"},
-        {"name": "Блогинг", "icon": "💬", "level": 3, "parent_name": "Литература"},
-        {"name": "Книжные клубы", "icon": "📚", "level": 3, "parent_name": "Литература"},
+        {"name": "Писательство", "icon": "✍️", "level": 3, "parent_name": "Литература"},  # Skill level makes sense
+        {"name": "Поэзия", "icon": "📝", "level": 3, "parent_name": "Литература"},  # Skill level makes sense
+        {"name": "Блогинг", "icon": "💬", "level": 3, "parent_name": "Литература"},  # Skill level makes sense
+        {"name": "Книжные клубы", "icon": "📚", "level": 3, "parent_name": "Литература", "requires_skill_level": False},  # Just interest
 
         # Прикладное - Level 3
         {"name": "Дизайн интерьера", "icon": "🏠", "level": 3, "parent_name": "Прикладное"},
@@ -486,62 +486,62 @@ def seed_interests_internal(db):
         {"name": "Варгеймы", "icon": "♟️", "level": 3, "parent_name": "Настольные игры"},
 
         # АКТИВНЫЙ ОТДЫХ - LEVEL 2
-        {"name": "Туризм", "icon": "🥾", "level": 2, "parent_name": "Активный отдых"},
-        {"name": "Охота и рыбалка", "icon": "🎣", "level": 2, "parent_name": "Активный отдых"},
+        {"name": "Туризм", "icon": "🥾", "level": 2, "parent_name": "Активный отдых", "requires_skill_level": False},  # Just interest
+        {"name": "Охота и рыбалка", "icon": "🎣", "level": 2, "parent_name": "Активный отдых", "requires_skill_level": False},  # Just interest
 
         # Туризм - Level 3
-        {"name": "Пешие походы", "icon": "🥾", "level": 3, "parent_name": "Туризм"},
-        {"name": "Кемпинг", "icon": "⛺", "level": 3, "parent_name": "Туризм"},
-        {"name": "Горный туризм", "icon": "⛰️", "level": 3, "parent_name": "Туризм"},
-        {"name": "Велотуризм", "icon": "🚴", "level": 3, "parent_name": "Туризм"},
+        {"name": "Пешие походы", "icon": "🥾", "level": 3, "parent_name": "Туризм", "requires_skill_level": False},
+        {"name": "Кемпинг", "icon": "⛺", "level": 3, "parent_name": "Туризм", "requires_skill_level": False},
+        {"name": "Горный туризм", "icon": "⛰️", "level": 3, "parent_name": "Туризм", "requires_skill_level": False},
+        {"name": "Велотуризм", "icon": "🚴", "level": 3, "parent_name": "Туризм", "requires_skill_level": False},
 
         # Охота и рыбалка - Level 3
-        {"name": "Рыбалка", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка"},
-        {"name": "Спиннинг", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка"},
-        {"name": "Нахлыст", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка"},
+        {"name": "Рыбалка", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка", "requires_skill_level": False},
+        {"name": "Спиннинг", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка", "requires_skill_level": False},
+        {"name": "Нахлыст", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка", "requires_skill_level": False},
 
         # ОБРАЗОВАНИЕ - LEVEL 2
-        {"name": "Языки", "icon": "🗣️", "level": 2, "parent_name": "Образование"},
-        {"name": "Наука", "icon": "🔬", "level": 2, "parent_name": "Образование"},
-        {"name": "История и культура", "icon": "📜", "level": 2, "parent_name": "Образование"},
+        {"name": "Языки", "icon": "🗣️", "level": 2, "parent_name": "Образование"},  # Skill level makes sense (A1-C2)
+        {"name": "Наука", "icon": "🔬", "level": 2, "parent_name": "Образование", "requires_skill_level": False},  # Just interest
+        {"name": "История и культура", "icon": "📜", "level": 2, "parent_name": "Образование", "requires_skill_level": False},  # Just interest
 
         # Наука - Level 3
-        {"name": "Точные науки", "icon": "🔢", "level": 3, "parent_name": "Наука"},
-        {"name": "Естественные науки", "icon": "🧪", "level": 3, "parent_name": "Наука"},
-        {"name": "Астрономия", "icon": "🔭", "level": 3, "parent_name": "Наука"},
+        {"name": "Точные науки", "icon": "🔢", "level": 3, "parent_name": "Наука", "requires_skill_level": False},
+        {"name": "Естественные науки", "icon": "🧪", "level": 3, "parent_name": "Наука", "requires_skill_level": False},
+        {"name": "Астрономия", "icon": "🔭", "level": 3, "parent_name": "Наука", "requires_skill_level": False},
 
         # Точные науки - Level 4
-        {"name": "Математика", "icon": "🔢", "level": 4, "parent_name": "Точные науки"},
-        {"name": "Физика", "icon": "⚛️", "level": 4, "parent_name": "Точные науки"},
-        {"name": "Программирование", "icon": "💻", "level": 4, "parent_name": "Точные науки"},
+        {"name": "Математика", "icon": "🔢", "level": 4, "parent_name": "Точные науки", "requires_skill_level": False},
+        {"name": "Физика", "icon": "⚛️", "level": 4, "parent_name": "Точные науки", "requires_skill_level": False},
+        {"name": "Программирование", "icon": "💻", "level": 4, "parent_name": "Точные науки", "requires_skill_level": False},
 
         # Естественные науки - Level 4
-        {"name": "Химия", "icon": "🧪", "level": 4, "parent_name": "Естественные науки"},
-        {"name": "Биология", "icon": "🧬", "level": 4, "parent_name": "Естественные науки"},
-        {"name": "Экология", "icon": "🌱", "level": 4, "parent_name": "Естественные науки"},
+        {"name": "Химия", "icon": "🧪", "level": 4, "parent_name": "Естественные науки", "requires_skill_level": False},
+        {"name": "Биология", "icon": "🧬", "level": 4, "parent_name": "Естественные науки", "requires_skill_level": False},
+        {"name": "Экология", "icon": "🌱", "level": 4, "parent_name": "Естественные науки", "requires_skill_level": False},
 
         # КУЛИНАРИЯ - LEVEL 2
-        {"name": "Готовка", "icon": "👨‍🍳", "level": 2, "parent_name": "Кулинария"},
-        {"name": "Выпечка", "icon": "🧁", "level": 2, "parent_name": "Кулинария"},
-        {"name": "Барбекю", "icon": "🔥", "level": 2, "parent_name": "Кулинария"},
-        {"name": "Кондитерское дело", "icon": "🍰", "level": 2, "parent_name": "Кулинария"},
-        {"name": "Кофе и чай", "icon": "☕", "level": 2, "parent_name": "Кулинария"},
-        {"name": "Вино и сомелье", "icon": "🍷", "level": 2, "parent_name": "Кулинария"},
-        {"name": "Миксология", "icon": "🍸", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Готовка", "icon": "👨‍🍳", "level": 2, "parent_name": "Кулинария"},  # Skill level makes sense
+        {"name": "Выпечка", "icon": "🧁", "level": 2, "parent_name": "Кулинария"},  # Skill level makes sense
+        {"name": "Барбекю", "icon": "🔥", "level": 2, "parent_name": "Кулинария"},  # Skill level makes sense
+        {"name": "Кондитерское дело", "icon": "🍰", "level": 2, "parent_name": "Кулинария"},  # Skill level makes sense
+        {"name": "Кофе и чай", "icon": "☕", "level": 2, "parent_name": "Кулинария", "requires_skill_level": False},  # Just interest
+        {"name": "Вино и сомелье", "icon": "🍷", "level": 2, "parent_name": "Кулинария"},  # Skill level makes sense (sommelier levels)
+        {"name": "Миксология", "icon": "🍸", "level": 2, "parent_name": "Кулинария"},  # Skill level makes sense
 
         # ПУТЕШЕСТВИЯ - LEVEL 2
-        {"name": "Бэкпэкинг", "icon": "🎒", "level": 2, "parent_name": "Путешествия"},
-        {"name": "Экскурсии", "icon": "🗺️", "level": 2, "parent_name": "Путешествия"},
-        {"name": "Автопутешествия", "icon": "🚗", "level": 2, "parent_name": "Путешествия"},
-        {"name": "Круизы", "icon": "🚢", "level": 2, "parent_name": "Путешествия"},
+        {"name": "Бэкпэкинг", "icon": "🎒", "level": 2, "parent_name": "Путешествия", "requires_skill_level": False},  # Just interest
+        {"name": "Экскурсии", "icon": "🗺️", "level": 2, "parent_name": "Путешествия", "requires_skill_level": False},  # Just interest
+        {"name": "Автопутешествия", "icon": "🚗", "level": 2, "parent_name": "Путешествия", "requires_skill_level": False},  # Just interest
+        {"name": "Круизы", "icon": "🚢", "level": 2, "parent_name": "Путешествия", "requires_skill_level": False},  # Just interest
 
         # ЖИВОТНЫЕ - LEVEL 2
-        {"name": "Собаки", "icon": "🐕", "level": 2, "parent_name": "Животные"},
-        {"name": "Кошки", "icon": "🐈", "level": 2, "parent_name": "Животные"},
-        {"name": "Аквариумистика", "icon": "🐠", "level": 2, "parent_name": "Животные"},
-        {"name": "Птицы", "icon": "🦜", "level": 2, "parent_name": "Животные"},
-        {"name": "Лошади", "icon": "🐴", "level": 2, "parent_name": "Животные"},
-        {"name": "Экзотические животные", "icon": "🦎", "level": 2, "parent_name": "Животные"},
+        {"name": "Собаки", "icon": "🐕", "level": 2, "parent_name": "Животные", "requires_skill_level": False},  # Just interest
+        {"name": "Кошки", "icon": "🐈", "level": 2, "parent_name": "Животные", "requires_skill_level": False},  # Just interest
+        {"name": "Аквариумистика", "icon": "🐠", "level": 2, "parent_name": "Животные", "requires_skill_level": False},  # Just interest
+        {"name": "Птицы", "icon": "🦜", "level": 2, "parent_name": "Животные", "requires_skill_level": False},  # Just interest
+        {"name": "Лошади", "icon": "🐴", "level": 2, "parent_name": "Животные", "requires_skill_level": False},  # Just interest
+        {"name": "Экзотические животные", "icon": "🦎", "level": 2, "parent_name": "Животные", "requires_skill_level": False},  # Just interest
 
         # ТЕХНОЛОГИИ - LEVEL 2
         {"name": "Программирование", "icon": "💻", "level": 2, "parent_name": "Технологии"},
@@ -552,10 +552,10 @@ def seed_interests_internal(db):
         {"name": "VR/AR", "icon": "🥽", "level": 2, "parent_name": "Технологии"},
 
         # ПСИХОЛОГИЯ - LEVEL 2
-        {"name": "Саморазвитие", "icon": "📈", "level": 2, "parent_name": "Психология"},
-        {"name": "Медитация", "icon": "🧘‍♀️", "level": 2, "parent_name": "Психология"},
-        {"name": "Коучинг", "icon": "💬", "level": 2, "parent_name": "Психология"},
-        {"name": "Нейронауки", "icon": "🧠", "level": 2, "parent_name": "Психология"},
+        {"name": "Саморазвитие", "icon": "📈", "level": 2, "parent_name": "Психология", "requires_skill_level": False},  # Just interest
+        {"name": "Медитация", "icon": "🧘‍♀️", "level": 2, "parent_name": "Психология", "requires_skill_level": False},  # Just interest
+        {"name": "Коучинг", "icon": "💬", "level": 2, "parent_name": "Психология", "requires_skill_level": False},  # Just interest
+        {"name": "Нейронауки", "icon": "🧠", "level": 2, "parent_name": "Психология", "requires_skill_level": False},  # Just interest
 
         # РУКОДЕЛИЕ - LEVEL 2
         {"name": "Вязание", "icon": "🧶", "level": 2, "parent_name": "Рукоделие"},
@@ -573,11 +573,11 @@ def seed_interests_internal(db):
         {"name": "Дрифт", "icon": "🚗", "level": 2, "parent_name": "Автомобили"},
 
         # ДРУГОЕ - LEVEL 2
-        {"name": "Волонтерство", "icon": "🤝", "level": 2, "parent_name": "Другое"},
-        {"name": "Астрология", "icon": "⭐", "level": 2, "parent_name": "Другое"},
-        {"name": "Коллекционирование", "icon": "🎁", "level": 2, "parent_name": "Другое"},
-        {"name": "Садоводство", "icon": "🌱", "level": 2, "parent_name": "Другое"},
-        {"name": "Цветоводство", "icon": "🌸", "level": 2, "parent_name": "Другое"},
+        {"name": "Волонтерство", "icon": "🤝", "level": 2, "parent_name": "Другое", "requires_skill_level": False},  # Just interest
+        {"name": "Астрология", "icon": "⭐", "level": 2, "parent_name": "Другое", "requires_skill_level": False},  # Just interest
+        {"name": "Коллекционирование", "icon": "🎁", "level": 2, "parent_name": "Другое", "requires_skill_level": False},  # Just interest
+        {"name": "Садоводство", "icon": "🌱", "level": 2, "parent_name": "Другое", "requires_skill_level": False},  # Just interest
+        {"name": "Цветоводство", "icon": "🌸", "level": 2, "parent_name": "Другое", "requires_skill_level": False},  # Just interest
     ]
 
     try:
@@ -598,7 +598,8 @@ def seed_interests_internal(db):
                     name=cat_data["name"],
                     icon=cat_data["icon"],
                     level=cat_data["level"],
-                    parent_id=parent_id
+                    parent_id=parent_id,
+                    requires_skill_level=cat_data.get("requires_skill_level", True)  # Default True
                 )
                 db.add(category)
                 db.flush()  # Get ID immediately

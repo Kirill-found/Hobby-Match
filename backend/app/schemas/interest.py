@@ -9,6 +9,7 @@ class InterestCategoryResponse(BaseModel):
     icon: Optional[str]
     level: int
     parent_id: Optional[int]
+    requires_skill_level: bool = True
     children: Optional[List["InterestCategoryResponse"]] = None
 
     class Config:

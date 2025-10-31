@@ -6,6 +6,7 @@ export interface InterestCategory {
   icon: string | null;
   level: number;
   parent_id: number | null;
+  requires_skill_level: boolean;
 }
 
 export interface UserInterest {

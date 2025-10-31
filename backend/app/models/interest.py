@@ -12,6 +12,7 @@ class InterestCategory(Base):
     icon = Column(String(50), nullable=True)  # Emoji
     level = Column(Integer, nullable=False)  # 1, 2, 3, 4
     parent_id = Column(Integer, ForeignKey("interest_categories.id"), nullable=True)
+    requires_skill_level = Column(Boolean, default=True, nullable=False)  # Whether skill level makes sense for this interest
 
     # Self-referential relationship
     parent = relationship("InterestCategory", remote_side=[id], backref="children")
