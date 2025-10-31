@@ -235,6 +235,34 @@ def reset_onboarding():
         db.close()
 
 
+@app.get("/reset-interests")
+def reset_interests_endpoint():
+    """
+    Reset and reseed interests into database
+    WARNING: This will delete all existing interests and user interests!
+    """
+    from app.database import SessionLocal
+    from app.models.interest import InterestCategory, UserInterest
+    import traceback
+
+    db = SessionLocal()
+
+    try:
+        # Delete all user interests first
+        db.query(UserInterest).delete()
+        # Delete all interest categories
+        db.query(InterestCategory).delete()
+        db.commit()
+
+        # Now seed new interests
+        return seed_interests_internal(db)
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
+
+
 @app.get("/seed/interests")
 def seed_interests_endpoint():
     """
@@ -252,98 +280,332 @@ def seed_interests_endpoint():
         existing = db.query(InterestCategory).first()
         if existing:
             return {"message": "Interests already seeded", "count": db.query(InterestCategory).count()}
+
+        return seed_interests_internal(db)
     except Exception as e:
         return {"error": "Failed to query database", "details": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
 
+
+def seed_interests_internal(db):
+    """Internal function to seed interests"""
+    from app.models.interest import InterestCategory
+    import traceback
+
+    # Using parent_name for easier management, will be resolved to parent_id
     interests_data = [
-        # СПОРТ (Level 1)
-        {"name": "Спорт", "icon": "⚽", "level": 1, "parent_id": None},
-        # Спорт - Level 2
-        {"name": "Футбол", "icon": "⚽", "level": 2, "parent_id": 1},
-        {"name": "Баскетбол", "icon": "🏀", "level": 2, "parent_id": 1},
-        {"name": "Волейбол", "icon": "🏐", "level": 2, "parent_id": 1},
-        {"name": "Теннис", "icon": "🎾", "level": 2, "parent_id": 1},
-        {"name": "Бег", "icon": "🏃", "level": 2, "parent_id": 1},
-        {"name": "Велоспорт", "icon": "🚴", "level": 2, "parent_id": 1},
-        {"name": "Плавание", "icon": "🏊", "level": 2, "parent_id": 1},
-        {"name": "Йога", "icon": "🧘", "level": 2, "parent_id": 1},
-        {"name": "Фитнес", "icon": "💪", "level": 2, "parent_id": 1},
-        {"name": "Бокс", "icon": "🥊", "level": 2, "parent_id": 1},
-        {"name": "Скейтбординг", "icon": "🛹", "level": 2, "parent_id": 1},
+        # LEVEL 1 CATEGORIES
+        {"name": "Спорт", "icon": "⚽", "level": 1, "parent_name": None},
+        {"name": "Творчество", "icon": "🎨", "level": 1, "parent_name": None},
+        {"name": "Игры", "icon": "🎮", "level": 1, "parent_name": None},
+        {"name": "Активный отдых", "icon": "🏕️", "level": 1, "parent_name": None},
+        {"name": "Образование", "icon": "📖", "level": 1, "parent_name": None},
+        {"name": "Кулинария", "icon": "🍳", "level": 1, "parent_name": None},
+        {"name": "Путешествия", "icon": "✈️", "level": 1, "parent_name": None},
+        {"name": "Животные", "icon": "🐾", "level": 1, "parent_name": None},
+        {"name": "Технологии", "icon": "💻", "level": 1, "parent_name": None},
+        {"name": "Психология", "icon": "🧠", "level": 1, "parent_name": None},
+        {"name": "Рукоделие", "icon": "🧵", "level": 1, "parent_name": None},
+        {"name": "Автомобили", "icon": "🚗", "level": 1, "parent_name": None},
+        {"name": "Другое", "icon": "✨", "level": 1, "parent_name": None},
 
-        # ТВОРЧЕСТВО (Level 1)
-        {"name": "Творчество", "icon": "🎨", "level": 1, "parent_id": None},
-        # Творчество - Level 2
-        {"name": "Рисование", "icon": "🎨", "level": 2, "parent_id": 13},
-        {"name": "Музыка", "icon": "🎵", "level": 2, "parent_id": 13},
-        {"name": "Фотография", "icon": "📸", "level": 2, "parent_id": 13},
-        {"name": "Танцы", "icon": "💃", "level": 2, "parent_id": 13},
-        {"name": "Пение", "icon": "🎤", "level": 2, "parent_id": 13},
-        {"name": "Театр", "icon": "🎭", "level": 2, "parent_id": 13},
-        {"name": "Кино", "icon": "🎬", "level": 2, "parent_id": 13},
-        {"name": "Литература", "icon": "📚", "level": 2, "parent_id": 13},
+        # СПОРТ - LEVEL 2
+        {"name": "Командные виды", "icon": "👥", "level": 2, "parent_name": "Спорт"},
+        {"name": "Единоборства", "icon": "🥋", "level": 2, "parent_name": "Спорт"},
+        {"name": "Ракетные виды", "icon": "🎾", "level": 2, "parent_name": "Спорт"},
+        {"name": "Циклические виды", "icon": "🏃", "level": 2, "parent_name": "Спорт"},
+        {"name": "Силовые виды", "icon": "💪", "level": 2, "parent_name": "Спорт"},
+        {"name": "Водные виды", "icon": "🏊", "level": 2, "parent_name": "Спорт"},
+        {"name": "Зимние виды", "icon": "⛷️", "level": 2, "parent_name": "Спорт"},
+        {"name": "Экстремальные виды", "icon": "🪂", "level": 2, "parent_name": "Спорт"},
+        {"name": "Интеллектуальные", "icon": "♟️", "level": 2, "parent_name": "Спорт"},
+        {"name": "Танцевальные", "icon": "💃", "level": 2, "parent_name": "Спорт"},
 
-        # ИГРЫ (Level 1)
-        {"name": "Игры", "icon": "🎮", "level": 1, "parent_id": None},
-        # Игры - Level 2
-        {"name": "Видеоигры", "icon": "🎮", "level": 2, "parent_id": 22},
-        {"name": "Настольные игры", "icon": "🎲", "level": 2, "parent_id": 22},
-        {"name": "Шахматы", "icon": "♟️", "level": 2, "parent_id": 22},
-        {"name": "Покер", "icon": "🃏", "level": 2, "parent_id": 22},
+        # Командные виды - Level 3
+        {"name": "Футбол", "icon": "⚽", "level": 3, "parent_name": "Командные виды"},
+        {"name": "Баскетбол", "icon": "🏀", "level": 3, "parent_name": "Командные виды"},
+        {"name": "Волейбол", "icon": "🏐", "level": 3, "parent_name": "Командные виды"},
+        {"name": "Хоккей", "icon": "🏒", "level": 3, "parent_name": "Командные виды"},
+        {"name": "Регби", "icon": "🏉", "level": 3, "parent_name": "Командные виды"},
+        {"name": "Гандбол", "icon": "🤾", "level": 3, "parent_name": "Командные виды"},
 
-        # АКТИВНЫЙ ОТДЫХ (Level 1)
-        {"name": "Активный отдых", "icon": "🏕️", "level": 1, "parent_id": None},
-        # Активный отдых - Level 2
-        {"name": "Походы", "icon": "🥾", "level": 2, "parent_id": 27},
-        {"name": "Кемпинг", "icon": "⛺", "level": 2, "parent_id": 27},
-        {"name": "Рыбалка", "icon": "🎣", "level": 2, "parent_id": 27},
-        {"name": "Скалолазание", "icon": "🧗", "level": 2, "parent_id": 27},
+        # Единоборства - Level 3
+        {"name": "Бокс", "icon": "🥊", "level": 3, "parent_name": "Единоборства"},
+        {"name": "MMA", "icon": "🥋", "level": 3, "parent_name": "Единоборства"},
+        {"name": "Кикбоксинг", "icon": "🥊", "level": 3, "parent_name": "Единоборства"},
+        {"name": "Джиу-джитсу", "icon": "🥋", "level": 3, "parent_name": "Единоборства"},
+        {"name": "Карате", "icon": "🥋", "level": 3, "parent_name": "Единоборства"},
+        {"name": "Тхэквондо", "icon": "🥋", "level": 3, "parent_name": "Единоборства"},
+        {"name": "Борьба", "icon": "🤼", "level": 3, "parent_name": "Единоборства"},
+        {"name": "Муай тай", "icon": "🥊", "level": 3, "parent_name": "Единоборства"},
 
-        # ОБРАЗОВАНИЕ (Level 1)
-        {"name": "Образование", "icon": "📖", "level": 1, "parent_id": None},
-        # Образование - Level 2
-        {"name": "Языки", "icon": "🗣️", "level": 2, "parent_id": 32},
-        {"name": "Программирование", "icon": "💻", "level": 2, "parent_id": 32},
-        {"name": "Наука", "icon": "🔬", "level": 2, "parent_id": 32},
-        {"name": "История", "icon": "📜", "level": 2, "parent_id": 32},
+        # Ракетные виды - Level 3
+        {"name": "Теннис", "icon": "🎾", "level": 3, "parent_name": "Ракетные виды"},
+        {"name": "Падел", "icon": "🎾", "level": 3, "parent_name": "Ракетные виды"},
+        {"name": "Настольный теннис", "icon": "🏓", "level": 3, "parent_name": "Ракетные виды"},
+        {"name": "Бадминтон", "icon": "🏸", "level": 3, "parent_name": "Ракетные виды"},
+        {"name": "Сквош", "icon": "🎾", "level": 3, "parent_name": "Ракетные виды"},
 
-        # КУЛИНАРИЯ (Level 1)
-        {"name": "Кулинария", "icon": "🍳", "level": 1, "parent_id": None},
-        # Кулинария - Level 2
-        {"name": "Готовка", "icon": "👨‍🍳", "level": 2, "parent_id": 37},
-        {"name": "Выпечка", "icon": "🧁", "level": 2, "parent_id": 37},
-        {"name": "Гриль", "icon": "🔥", "level": 2, "parent_id": 37},
+        # Циклические виды - Level 3
+        {"name": "Бег", "icon": "🏃", "level": 3, "parent_name": "Циклические виды"},
+        {"name": "Велоспорт", "icon": "🚴", "level": 3, "parent_name": "Циклические виды"},
+        {"name": "Триатлон", "icon": "🏊", "level": 3, "parent_name": "Циклические виды"},
+        {"name": "Марафон", "icon": "🏃", "level": 3, "parent_name": "Циклические виды"},
+        {"name": "Роликовые коньки", "icon": "⛸️", "level": 3, "parent_name": "Циклические виды"},
 
-        # ПУТЕШЕСТВИЯ (Level 1)
-        {"name": "Путешествия", "icon": "✈️", "level": 1, "parent_id": None},
-        # Путешествия - Level 2
-        {"name": "Бэкпэкинг", "icon": "🎒", "level": 2, "parent_id": 41},
-        {"name": "Экскурсии", "icon": "🗺️", "level": 2, "parent_id": 41},
+        # Силовые виды - Level 3
+        {"name": "Фитнес", "icon": "💪", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Кроссфит", "icon": "🏋️", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Пауэрлифтинг", "icon": "🏋️", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Бодибилдинг", "icon": "💪", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Гиревой спорт", "icon": "🏋️", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Стрит воркаут", "icon": "💪", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Йога", "icon": "🧘", "level": 3, "parent_name": "Силовые виды"},
+        {"name": "Пилатес", "icon": "🧘", "level": 3, "parent_name": "Силовые виды"},
 
-        # ЖИВОТНЫЕ (Level 1)
-        {"name": "Животные", "icon": "🐾", "level": 1, "parent_id": None},
-        # Животные - Level 2
-        {"name": "Собаки", "icon": "🐕", "level": 2, "parent_id": 44},
-        {"name": "Кошки", "icon": "🐈", "level": 2, "parent_id": 44},
+        # Водные виды - Level 3
+        {"name": "Плавание", "icon": "🏊", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Дайвинг", "icon": "🤿", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Серфинг", "icon": "🏄", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Виндсерфинг", "icon": "🏄", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Кайтсерфинг", "icon": "🪁", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Вейкбординг", "icon": "🏄", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Гребля", "icon": "🚣", "level": 3, "parent_name": "Водные виды"},
+        {"name": "Парусный спорт", "icon": "⛵", "level": 3, "parent_name": "Водные виды"},
 
-        # ДРУГОЕ (Level 1)
-        {"name": "Другое", "icon": "✨", "level": 1, "parent_id": None},
-        # Другое - Level 2
-        {"name": "Волонтерство", "icon": "🤝", "level": 2, "parent_id": 47},
-        {"name": "Медитация", "icon": "🧘‍♀️", "level": 2, "parent_id": 47},
-        {"name": "Астрология", "icon": "⭐", "level": 2, "parent_id": 47},
+        # Зимние виды - Level 3
+        {"name": "Лыжи", "icon": "⛷️", "level": 3, "parent_name": "Зимние виды"},
+        {"name": "Сноуборд", "icon": "🏂", "level": 3, "parent_name": "Зимние виды"},
+        {"name": "Фигурное катание", "icon": "⛸️", "level": 3, "parent_name": "Зимние виды"},
+        {"name": "Коньки", "icon": "⛸️", "level": 3, "parent_name": "Зимние виды"},
+
+        # Экстремальные виды - Level 3
+        {"name": "Скейтбординг", "icon": "🛹", "level": 3, "parent_name": "Экстремальные виды"},
+        {"name": "BMX", "icon": "🚴", "level": 3, "parent_name": "Экстремальные виды"},
+        {"name": "Паркур", "icon": "🤸", "level": 3, "parent_name": "Экстремальные виды"},
+        {"name": "Скалолазание", "icon": "🧗", "level": 3, "parent_name": "Экстремальные виды"},
+        {"name": "Боулдеринг", "icon": "🧗", "level": 3, "parent_name": "Экстремальные виды"},
+        {"name": "Парашютный спорт", "icon": "🪂", "level": 3, "parent_name": "Экстремальные виды"},
+        {"name": "Бейсджампинг", "icon": "🪂", "level": 3, "parent_name": "Экстремальные виды"},
+
+        # Интеллектуальные - Level 3
+        {"name": "Шахматы", "icon": "♟️", "level": 3, "parent_name": "Интеллектуальные"},
+        {"name": "Го", "icon": "⚫", "level": 3, "parent_name": "Интеллектуальные"},
+        {"name": "Покер", "icon": "🃏", "level": 3, "parent_name": "Интеллектуальные"},
+        {"name": "Бридж", "icon": "🃏", "level": 3, "parent_name": "Интеллектуальные"},
+
+        # Танцевальные - Level 3
+        {"name": "Бальные танцы", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Латина", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Сальса", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Бачата", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Кизомба", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Хип-хоп", "icon": "🕺", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Брейк-данс", "icon": "🕺", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Контемп", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Хай хилс", "icon": "👠", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Тверк", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Стрип-пластика", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Танго", "icon": "💃", "level": 3, "parent_name": "Танцевальные"},
+        {"name": "Свинг", "icon": "🕺", "level": 3, "parent_name": "Танцевальные"},
+
+        # ТВОРЧЕСТВО - LEVEL 2
+        {"name": "Изобразительное", "icon": "🎨", "level": 2, "parent_name": "Творчество"},
+        {"name": "Музыка", "icon": "🎵", "level": 2, "parent_name": "Творчество"},
+        {"name": "Фото и видео", "icon": "📸", "level": 2, "parent_name": "Творчество"},
+        {"name": "Театр и кино", "icon": "🎭", "level": 2, "parent_name": "Творчество"},
+        {"name": "Литература", "icon": "📚", "level": 2, "parent_name": "Творчество"},
+        {"name": "Прикладное", "icon": "🎨", "level": 2, "parent_name": "Творчество"},
+
+        # Изобразительное - Level 3
+        {"name": "Рисование", "icon": "✏️", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Живопись", "icon": "🖌️", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Графика", "icon": "✍️", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Скульптура", "icon": "🗿", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Керамика", "icon": "🏺", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Граффити", "icon": "🎨", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Аэрография", "icon": "🎨", "level": 3, "parent_name": "Изобразительное"},
+        {"name": "Каллиграфия", "icon": "🖋️", "level": 3, "parent_name": "Изобразительное"},
+
+        # Музыка - Level 3
+        {"name": "Гитара", "icon": "🎸", "level": 3, "parent_name": "Музыка"},
+        {"name": "Фортепиано", "icon": "🎹", "level": 3, "parent_name": "Музыка"},
+        {"name": "Барабаны", "icon": "🥁", "level": 3, "parent_name": "Музыка"},
+        {"name": "Вокал", "icon": "🎤", "level": 3, "parent_name": "Музыка"},
+        {"name": "Скрипка", "icon": "🎻", "level": 3, "parent_name": "Музыка"},
+        {"name": "Саксофон", "icon": "🎷", "level": 3, "parent_name": "Музыка"},
+        {"name": "DJ", "icon": "🎧", "level": 3, "parent_name": "Музыка"},
+        {"name": "Битмейкинг", "icon": "🎛️", "level": 3, "parent_name": "Музыка"},
+        {"name": "Рэп", "icon": "🎤", "level": 3, "parent_name": "Музыка"},
+
+        # Фото и видео - Level 3
+        {"name": "Фотография", "icon": "📷", "level": 3, "parent_name": "Фото и видео"},
+        {"name": "Видеосъемка", "icon": "🎥", "level": 3, "parent_name": "Фото и видео"},
+        {"name": "Видеомонтаж", "icon": "🎬", "level": 3, "parent_name": "Фото и видео"},
+        {"name": "Анимация", "icon": "🎞️", "level": 3, "parent_name": "Фото и видео"},
+        {"name": "Моушн-дизайн", "icon": "🎬", "level": 3, "parent_name": "Фото и видео"},
+
+        # Театр и кино - Level 3
+        {"name": "Актерское мастерство", "icon": "🎭", "level": 3, "parent_name": "Театр и кино"},
+        {"name": "Режиссура", "icon": "🎬", "level": 3, "parent_name": "Театр и кино"},
+        {"name": "Сценаристика", "icon": "✍️", "level": 3, "parent_name": "Театр и кино"},
+        {"name": "Стендап", "icon": "🎤", "level": 3, "parent_name": "Театр и кино"},
+        {"name": "Импровизация", "icon": "🎭", "level": 3, "parent_name": "Театр и кино"},
+
+        # Литература - Level 3
+        {"name": "Писательство", "icon": "✍️", "level": 3, "parent_name": "Литература"},
+        {"name": "Поэзия", "icon": "📝", "level": 3, "parent_name": "Литература"},
+        {"name": "Блогинг", "icon": "💬", "level": 3, "parent_name": "Литература"},
+        {"name": "Книжные клубы", "icon": "📚", "level": 3, "parent_name": "Литература"},
+
+        # Прикладное - Level 3
+        {"name": "Дизайн интерьера", "icon": "🏠", "level": 3, "parent_name": "Прикладное"},
+        {"name": "Графический дизайн", "icon": "🎨", "level": 3, "parent_name": "Прикладное"},
+        {"name": "Веб-дизайн", "icon": "💻", "level": 3, "parent_name": "Прикладное"},
+        {"name": "UX/UI дизайн", "icon": "📱", "level": 3, "parent_name": "Прикладное"},
+        {"name": "3D моделирование", "icon": "🎨", "level": 3, "parent_name": "Прикладное"},
+
+        # ИГРЫ - LEVEL 2
+        {"name": "Видеоигры", "icon": "🎮", "level": 2, "parent_name": "Игры"},
+        {"name": "Настольные игры", "icon": "🎲", "level": 2, "parent_name": "Игры"},
+        {"name": "Карточные игры", "icon": "🃏", "level": 2, "parent_name": "Игры"},
+
+        # Видеоигры - Level 3
+        {"name": "Шутеры", "icon": "🎮", "level": 3, "parent_name": "Видеоигры"},
+        {"name": "MOBA", "icon": "🎮", "level": 3, "parent_name": "Видеоигры"},
+        {"name": "RPG", "icon": "⚔️", "level": 3, "parent_name": "Видеоигры"},
+        {"name": "Стратегии", "icon": "🎮", "level": 3, "parent_name": "Видеоигры"},
+        {"name": "Спортивные симуляторы", "icon": "⚽", "level": 3, "parent_name": "Видеоигры"},
+        {"name": "Гонки", "icon": "🏎️", "level": 3, "parent_name": "Видеоигры"},
+        {"name": "Киберспорт", "icon": "🎮", "level": 3, "parent_name": "Видеоигры"},
+
+        # Настольные игры - Level 3
+        {"name": "Настолки", "icon": "🎲", "level": 3, "parent_name": "Настольные игры"},
+        {"name": "Ролевые игры", "icon": "🎲", "level": 3, "parent_name": "Настольные игры"},
+        {"name": "Варгеймы", "icon": "♟️", "level": 3, "parent_name": "Настольные игры"},
+
+        # АКТИВНЫЙ ОТДЫХ - LEVEL 2
+        {"name": "Туризм", "icon": "🥾", "level": 2, "parent_name": "Активный отдых"},
+        {"name": "Охота и рыбалка", "icon": "🎣", "level": 2, "parent_name": "Активный отдых"},
+
+        # Туризм - Level 3
+        {"name": "Пешие походы", "icon": "🥾", "level": 3, "parent_name": "Туризм"},
+        {"name": "Кемпинг", "icon": "⛺", "level": 3, "parent_name": "Туризм"},
+        {"name": "Горный туризм", "icon": "⛰️", "level": 3, "parent_name": "Туризм"},
+        {"name": "Велотуризм", "icon": "🚴", "level": 3, "parent_name": "Туризм"},
+
+        # Охота и рыбалка - Level 3
+        {"name": "Рыбалка", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка"},
+        {"name": "Спиннинг", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка"},
+        {"name": "Нахлыст", "icon": "🎣", "level": 3, "parent_name": "Охота и рыбалка"},
+
+        # ОБРАЗОВАНИЕ - LEVEL 2
+        {"name": "Языки", "icon": "🗣️", "level": 2, "parent_name": "Образование"},
+        {"name": "Наука", "icon": "🔬", "level": 2, "parent_name": "Образование"},
+        {"name": "История и культура", "icon": "📜", "level": 2, "parent_name": "Образование"},
+
+        # Наука - Level 3
+        {"name": "Точные науки", "icon": "🔢", "level": 3, "parent_name": "Наука"},
+        {"name": "Естественные науки", "icon": "🧪", "level": 3, "parent_name": "Наука"},
+        {"name": "Астрономия", "icon": "🔭", "level": 3, "parent_name": "Наука"},
+
+        # Точные науки - Level 4
+        {"name": "Математика", "icon": "🔢", "level": 4, "parent_name": "Точные науки"},
+        {"name": "Физика", "icon": "⚛️", "level": 4, "parent_name": "Точные науки"},
+        {"name": "Программирование", "icon": "💻", "level": 4, "parent_name": "Точные науки"},
+
+        # Естественные науки - Level 4
+        {"name": "Химия", "icon": "🧪", "level": 4, "parent_name": "Естественные науки"},
+        {"name": "Биология", "icon": "🧬", "level": 4, "parent_name": "Естественные науки"},
+        {"name": "Экология", "icon": "🌱", "level": 4, "parent_name": "Естественные науки"},
+
+        # КУЛИНАРИЯ - LEVEL 2
+        {"name": "Готовка", "icon": "👨‍🍳", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Выпечка", "icon": "🧁", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Барбекю", "icon": "🔥", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Кондитерское дело", "icon": "🍰", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Кофе и чай", "icon": "☕", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Вино и сомелье", "icon": "🍷", "level": 2, "parent_name": "Кулинария"},
+        {"name": "Миксология", "icon": "🍸", "level": 2, "parent_name": "Кулинария"},
+
+        # ПУТЕШЕСТВИЯ - LEVEL 2
+        {"name": "Бэкпэкинг", "icon": "🎒", "level": 2, "parent_name": "Путешествия"},
+        {"name": "Экскурсии", "icon": "🗺️", "level": 2, "parent_name": "Путешествия"},
+        {"name": "Автопутешествия", "icon": "🚗", "level": 2, "parent_name": "Путешествия"},
+        {"name": "Круизы", "icon": "🚢", "level": 2, "parent_name": "Путешествия"},
+
+        # ЖИВОТНЫЕ - LEVEL 2
+        {"name": "Собаки", "icon": "🐕", "level": 2, "parent_name": "Животные"},
+        {"name": "Кошки", "icon": "🐈", "level": 2, "parent_name": "Животные"},
+        {"name": "Аквариумистика", "icon": "🐠", "level": 2, "parent_name": "Животные"},
+        {"name": "Птицы", "icon": "🦜", "level": 2, "parent_name": "Животные"},
+        {"name": "Лошади", "icon": "🐴", "level": 2, "parent_name": "Животные"},
+        {"name": "Экзотические животные", "icon": "🦎", "level": 2, "parent_name": "Животные"},
+
+        # ТЕХНОЛОГИИ - LEVEL 2
+        {"name": "Программирование", "icon": "💻", "level": 2, "parent_name": "Технологии"},
+        {"name": "Робототехника", "icon": "🤖", "level": 2, "parent_name": "Технологии"},
+        {"name": "3D печать", "icon": "🖨️", "level": 2, "parent_name": "Технологии"},
+        {"name": "Электроника", "icon": "⚡", "level": 2, "parent_name": "Технологии"},
+        {"name": "Дроны", "icon": "🚁", "level": 2, "parent_name": "Технологии"},
+        {"name": "VR/AR", "icon": "🥽", "level": 2, "parent_name": "Технологии"},
+
+        # ПСИХОЛОГИЯ - LEVEL 2
+        {"name": "Саморазвитие", "icon": "📈", "level": 2, "parent_name": "Психология"},
+        {"name": "Медитация", "icon": "🧘‍♀️", "level": 2, "parent_name": "Психология"},
+        {"name": "Коучинг", "icon": "💬", "level": 2, "parent_name": "Психология"},
+        {"name": "Нейронауки", "icon": "🧠", "level": 2, "parent_name": "Психология"},
+
+        # РУКОДЕЛИЕ - LEVEL 2
+        {"name": "Вязание", "icon": "🧶", "level": 2, "parent_name": "Рукоделие"},
+        {"name": "Шитье", "icon": "🪡", "level": 2, "parent_name": "Рукоделие"},
+        {"name": "Вышивка", "icon": "🧵", "level": 2, "parent_name": "Рукоделие"},
+        {"name": "Макраме", "icon": "🧵", "level": 2, "parent_name": "Рукоделие"},
+        {"name": "Мыловарение", "icon": "🧼", "level": 2, "parent_name": "Рукоделие"},
+        {"name": "Свечи", "icon": "🕯️", "level": 2, "parent_name": "Рукоделие"},
+        {"name": "Скрапбукинг", "icon": "📔", "level": 2, "parent_name": "Рукоделие"},
+
+        # АВТОМОБИЛИ - LEVEL 2
+        {"name": "Автотюнинг", "icon": "🔧", "level": 2, "parent_name": "Автомобили"},
+        {"name": "Мотоциклы", "icon": "🏍️", "level": 2, "parent_name": "Автомобили"},
+        {"name": "Картинг", "icon": "🏎️", "level": 2, "parent_name": "Автомобили"},
+        {"name": "Дрифт", "icon": "🚗", "level": 2, "parent_name": "Автомобили"},
+
+        # ДРУГОЕ - LEVEL 2
+        {"name": "Волонтерство", "icon": "🤝", "level": 2, "parent_name": "Другое"},
+        {"name": "Астрология", "icon": "⭐", "level": 2, "parent_name": "Другое"},
+        {"name": "Коллекционирование", "icon": "🎁", "level": 2, "parent_name": "Другое"},
+        {"name": "Садоводство", "icon": "🌱", "level": 2, "parent_name": "Другое"},
+        {"name": "Цветоводство", "icon": "🌸", "level": 2, "parent_name": "Другое"},
     ]
 
     try:
-        count = 0
-        for interest_data in interests_data:
-            interest = InterestCategory(**interest_data)
-            db.add(interest)
-            db.flush()  # Flush to get IDs for parent references
-            count += 1
+        # Create categories by level to handle parent references
+        category_map = {}  # name -> category object
+
+        for level_num in range(1, 5):
+            level_categories = [cat for cat in interests_data if cat["level"] == level_num]
+
+            for cat_data in level_categories:
+                parent_id = None
+                if cat_data.get("parent_name"):
+                    parent_cat = category_map.get(cat_data["parent_name"])
+                    if parent_cat:
+                        parent_id = parent_cat.id
+
+                category = InterestCategory(
+                    name=cat_data["name"],
+                    icon=cat_data["icon"],
+                    level=cat_data["level"],
+                    parent_id=parent_id
+                )
+                db.add(category)
+                db.flush()  # Get ID immediately
+                category_map[cat_data["name"]] = category
 
         db.commit()
-        return {"message": "Successfully seeded interests", "count": count}
+        return {"message": "Successfully seeded interests", "count": len(category_map)}
 
     except Exception as e:
         db.rollback()
