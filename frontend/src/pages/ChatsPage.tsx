@@ -56,7 +56,7 @@ export default function ChatsPage() {
       .slice(0, 2);
   };
 
-  // BRANDBOOK: Loading State
+  // Loading state
   if (loading) {
     return (
       <div
@@ -64,7 +64,6 @@ export default function ChatsPage() {
         style={{ backgroundColor: '#0D1117' }}
       >
         <div className="text-center">
-          {/* Electric Lime spinner */}
           <div
             className="animate-spin rounded-full h-16 w-16 mx-auto"
             style={{
@@ -89,7 +88,7 @@ export default function ChatsPage() {
     );
   }
 
-  // BRANDBOOK: Error State
+  // Error state
   if (error) {
     return (
       <div
@@ -117,33 +116,12 @@ export default function ChatsPage() {
 
   return (
     <div
-      className="min-h-screen pb-24"
+      className="min-h-screen pb-20"
       style={{ backgroundColor: '#0D1117' }}
     >
-      {/* BRANDBOOK: Header */}
-      <div
-        className="sticky top-0 z-40 border-b"
-        style={{
-          backgroundColor: '#161B22',
-          borderBottomColor: 'rgba(191, 255, 0, 0.1)',
-        }}
-      >
-        <div className="flex items-center justify-between px-4 h-16">
-          <h1
-            className="text-2xl font-bold"
-            style={{
-              color: '#FFFFFF',
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}
-          >
-            Чаты
-          </h1>
-        </div>
-      </div>
-
-      {/* BRANDBOOK: Empty State */}
+      {/* Empty State */}
       {conversations.length === 0 ? (
-        <div className="flex items-center justify-center min-h-[70vh] px-6">
+        <div className="flex items-center justify-center min-h-[80vh] px-6">
           <div className="text-center max-w-md">
             {/* Empty state icon */}
             <div
@@ -185,8 +163,8 @@ export default function ChatsPage() {
           </div>
         </div>
       ) : (
-        // BRANDBOOK: Chat List
-        <div className="px-3 pt-3 space-y-3">
+        // Chat List
+        <div className="pt-4 px-3 space-y-2 max-w-4xl mx-auto">
           {conversations.map((conversation) => (
             <div
               key={conversation.match_id}
@@ -194,23 +172,23 @@ export default function ChatsPage() {
               className="rounded-2xl p-4 cursor-pointer transition-all duration-200"
               style={{
                 backgroundColor: '#161B22',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#1C2128';
                 e.currentTarget.style.borderColor = 'rgba(191, 255, 0, 0.2)';
-                e.currentTarget.style.boxShadow = '0 0 20px rgba(191, 255, 0, 0.1)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#161B22';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               <div className="flex items-center gap-3">
-                {/* BRANDBOOK: Avatar with Lime gradient */}
+                {/* Avatar */}
                 <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0"
                   style={{
                     background: conversation.partner_photo
                       ? 'transparent'
@@ -236,11 +214,10 @@ export default function ChatsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2 mb-1">
                     <h3
-                      className="font-bold truncate"
+                      className="font-bold truncate text-base sm:text-lg"
                       style={{
                         color: '#FFFFFF',
                         fontFamily: "'Space Grotesk', sans-serif",
-                        fontSize: '1.125rem',
                       }}
                     >
                       {conversation.partner_name}
@@ -265,7 +242,7 @@ export default function ChatsPage() {
                     >
                       {conversation.last_message || 'Начните общение'}
                     </p>
-                    {/* BRANDBOOK: Unread badge with Lime */}
+                    {/* Unread badge */}
                     {conversation.unread_count > 0 && (
                       <span
                         className="text-xs font-bold rounded-full px-2.5 py-1 flex-shrink-0"

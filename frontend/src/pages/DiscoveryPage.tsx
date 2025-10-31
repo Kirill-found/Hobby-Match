@@ -109,7 +109,7 @@ export default function DiscoveryPage() {
     }
   };
 
-  // BRANDBOOK: Loading state
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D1117' }}>
@@ -134,7 +134,7 @@ export default function DiscoveryPage() {
     );
   }
 
-  // BRANDBOOK: Error state
+  // Error state
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: '#0D1117' }}>
@@ -160,7 +160,7 @@ export default function DiscoveryPage() {
     );
   }
 
-  // BRANDBOOK: No more users state
+  // No more users state
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: '#0D1117' }}>
@@ -202,64 +202,40 @@ export default function DiscoveryPage() {
 
   return (
     <div
-      className="min-h-screen pb-24"
+      className="min-h-screen pb-20"
       style={{
         backgroundColor: '#0D1117',
-        paddingTop: '72px',
       }}
     >
-      {/* BRANDBOOK: Header - Deep Space with Lime accents */}
+      {/* Compact top bar - NO TITLE */}
       <div
-        className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-16"
+        className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3"
         style={{
-          backgroundColor: '#161B22',
-          borderBottom: '1px solid rgba(191, 255, 0, 0.1)',
+          backgroundColor: 'transparent',
         }}
       >
         {/* Avatar */}
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold cursor-pointer"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold cursor-pointer"
           style={{
             background: 'linear-gradient(135deg, #BFFF00 0%, #A3E000 100%)',
             color: '#0D1117',
             boxShadow: '0 4px 12px rgba(191, 255, 0, 0.25)',
-            transition: 'transform 0.2s ease',
           }}
           onClick={() => navigate('/profile')}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         >
           {user?.first_name ? user.first_name[0].toUpperCase() : '👤'}
         </div>
-
-        {/* Title - BRANDBOOK: Space Grotesk */}
-        <h1
-          className="text-xl font-bold"
-          style={{
-            color: '#FFF',
-            fontFamily: "'Space Grotesk', sans-serif",
-          }}
-        >
-          Discovery
-        </h1>
 
         {/* Filter Button */}
         <button
           onClick={() => setShowFilterModal(true)}
           className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{
-            backgroundColor: '#161B22',
-            border: '1px solid rgba(191, 255, 0, 0.2)',
+            backgroundColor: 'rgba(22, 27, 34, 0.8)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(191, 255, 0, 0.3)',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#1F242C';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(191, 255, 0, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#161B22';
-            e.currentTarget.style.boxShadow = 'none';
           }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#BFFF00" strokeWidth="1.5">
@@ -272,13 +248,12 @@ export default function DiscoveryPage() {
         </button>
       </div>
 
-      {/* BRANDBOOK: Match Notification */}
+      {/* Match Notification */}
       {showMatchNotification && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center px-6"
           style={{
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            animation: 'fadeIn 0.3s ease-out',
           }}
         >
           <div
@@ -286,7 +261,6 @@ export default function DiscoveryPage() {
             style={{
               backgroundColor: '#161B22',
               boxShadow: '0 20px 60px rgba(191, 255, 0, 0.3)',
-              animation: 'scaleIn 0.4s ease-out',
             }}
           >
             <div className="text-7xl mb-4">🤝</div>
@@ -306,9 +280,9 @@ export default function DiscoveryPage() {
         </div>
       )}
 
-      {/* Card Container */}
-      <div className="max-w-md mx-auto px-4">
-        <div key={currentUser.user_id} style={{ animation: 'fadeIn 0.3s ease-out' }}>
+      {/* Card Container - centered and responsive */}
+      <div className="w-full px-3 pt-16 max-w-md mx-auto sm:px-4 md:max-w-lg lg:max-w-xl">
+        <div key={currentUser.user_id}>
           <UserCard user={currentUser} onLike={handleLike} onDislike={handleDislike} />
         </div>
       </div>
@@ -323,17 +297,6 @@ export default function DiscoveryPage() {
         currentFilters={filters}
         interests={interests.map((cat) => ({ id: cat.id, name: cat.name, icon: cat.icon || '🎯' }))}
       />
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
     </div>
   );
 }

@@ -73,45 +73,32 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
   const getLikeOpacity = () => Math.max(0, Math.min(1, dragOffset.x / 100));
   const getDislikeOpacity = () => Math.max(0, Math.min(1, -dragOffset.x / 100));
 
-  // BRANDBOOK: Interest category colors mapping
   const getCategoryColor = (interestName: string): any => {
     const lowerName = interestName.toLowerCase();
-
-    // Fitness (Hot Pink #FF006B)
     if (lowerName.includes('спорт') || lowerName.includes('фитнес') || lowerName.includes('бег') ||
         lowerName.includes('йог') || lowerName.includes('теннис') || lowerName.includes('футбол') ||
         lowerName.includes('баскетбол') || lowerName.includes('волейбол') || lowerName.includes('бадминтон') ||
         lowerName.includes('плаван') || lowerName.includes('тренаж') || lowerName.includes('силов')) return 'fitness';
-
-    // Travel (Cyan #00D9FF)
     if (lowerName.includes('путешеств') || lowerName.includes('туризм') || lowerName.includes('походы')) return 'travel';
-
-    // Creative (Purple #9B51E0)
     if (lowerName.includes('творч') || lowerName.includes('искусств') || lowerName.includes('рисован') ||
         lowerName.includes('музык') || lowerName.includes('фото') || lowerName.includes('танц')) return 'creative';
-
-    // Gaming (Amber #F59E0B)
     if (lowerName.includes('игр') || lowerName.includes('киберспорт') || lowerName.includes('видеоигр')) return 'gaming';
-
-    // Learning (Blue #3B82F6)
     if (lowerName.includes('обуч') || lowerName.includes('язык') || lowerName.includes('програм') ||
         lowerName.includes('наук') || lowerName.includes('книг')) return 'learning';
-
-    // Food (Red #EF4444)
     if (lowerName.includes('еда') || lowerName.includes('кулинар') || lowerName.includes('готов')) return 'food';
-
     return 'default';
   };
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full">
       {/* Main Card */}
       <div
         ref={cardRef}
         className="relative w-full overflow-hidden"
         style={{
-          height: 'calc(100vh - 220px)',
-          maxHeight: '650px',
+          height: 'calc(100vh - 180px)',
+          maxHeight: '700px',
+          minHeight: '500px',
           borderRadius: '24px',
           backgroundColor: '#161B22',
           boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
@@ -121,6 +108,8 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
           transition: isDragging ? 'none' : 'transform 0.3s ease-out',
           cursor: isDragging ? 'grabbing' : 'grab',
           touchAction: 'none',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         onMouseDown={(e) => handleDragStart(e.clientX, e.clientY)}
         onMouseMove={(e) => isDragging && handleDragMove(e.clientX, e.clientY)}
@@ -142,14 +131,13 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
         <div
           style={{
             position: 'absolute',
-            top: '50%',
-            left: '40px',
+            top: '40%',
+            left: '30px',
             transform: 'translateY(-50%) rotate(-20deg)',
             fontSize: '80px',
             opacity: getLikeOpacity(),
             pointerEvents: 'none',
             zIndex: 20,
-            transition: 'opacity 0.1s ease-out',
             filter: 'drop-shadow(0 0 20px rgba(191, 255, 0, 0.6))',
           }}
         >
@@ -160,14 +148,13 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
         <div
           style={{
             position: 'absolute',
-            top: '50%',
-            right: '40px',
+            top: '40%',
+            right: '30px',
             transform: 'translateY(-50%) rotate(20deg)',
             fontSize: '80px',
             opacity: getDislikeOpacity(),
             pointerEvents: 'none',
             zIndex: 20,
-            transition: 'opacity 0.1s ease-out',
             filter: 'drop-shadow(0 0 20px rgba(255, 59, 48, 0.6))',
           }}
         >
@@ -175,7 +162,7 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
         </div>
 
         {/* Photo Section */}
-        <div className="relative w-full" style={{ height: '70%' }}>
+        <div className="relative flex-1" style={{ minHeight: '60%' }}>
           {user.photos && user.photos.length > 0 ? (
             <img
               src={user.photos[0]}
@@ -195,54 +182,33 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             </div>
           )}
 
-          {/* BRANDBOOK: Gradient overlay для читаемости */}
+          {/* Gradient overlay */}
           <div
             style={{
               position: 'absolute',
               bottom: 0,
               left: 0,
               right: 0,
-              height: '50%',
-              background: 'linear-gradient(to top, rgba(13, 17, 23, 0.95) 0%, transparent 100%)',
+              height: '60%',
+              background: 'linear-gradient(to top, rgba(13, 17, 23, 0.98) 0%, rgba(13, 17, 23, 0.7) 50%, transparent 100%)',
+              pointerEvents: 'none',
             }}
           />
-
-          {/* Info button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDetails(!showDetails);
-            }}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center"
-            style={{
-              backgroundColor: 'rgba(22, 27, 34, 0.8)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(191, 255, 0, 0.3)',
-              color: '#FFF',
-              fontSize: '20px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            ℹ️
-          </button>
 
           {/* User Info Overlay */}
           <div
             style={{
               position: 'absolute',
-              bottom: '20px',
-              left: '20px',
-              right: '20px',
+              bottom: '16px',
+              left: '16px',
+              right: '16px',
             }}
           >
-            {/* BRANDBOOK: Space Grotesk for heading */}
             <h2
-              className="text-3xl font-bold mb-1"
+              className="text-2xl font-bold mb-1"
               style={{
                 color: '#FFF',
                 fontFamily: "'Space Grotesk', sans-serif",
-                textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
               }}
             >
               {user.name}
@@ -251,13 +217,13 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
 
             {user.city && (
               <div
-                className="flex items-center gap-1 mb-3"
+                className="flex items-center gap-1 mb-2"
                 style={{
                   color: '#B4B4C8',
-                  fontSize: '15px',
+                  fontSize: '14px',
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" strokeLinecap="round" strokeLinejoin="round"/>
                   <circle cx="12" cy="9" r="2.5"/>
                 </svg>
@@ -265,7 +231,7 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               </div>
             )}
 
-            {/* Interests - BRANDBOOK badges */}
+            {/* Interests */}
             {user.interests && user.interests.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {user.interests.slice(0, 3).map((interest, index) => (
@@ -273,45 +239,75 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
                     key={index}
                     category={getCategoryColor(interest.name || '')}
                   >
-                    {interest.icon && <span>{interest.icon}</span>}
-                    <span>{interest.name}</span>
+                    {interest.icon && <span className="text-sm">{interest.icon}</span>}
+                    <span className="text-xs">{interest.name}</span>
                   </Badge>
                 ))}
+                {user.interests.length > 3 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDetails(true);
+                    }}
+                    className="text-xs px-3 py-1 rounded-full"
+                    style={{
+                      backgroundColor: 'rgba(191, 255, 0, 0.15)',
+                      color: '#BFFF00',
+                      border: '1px solid rgba(191, 255, 0, 0.3)',
+                    }}
+                  >
+                    +{user.interests.length - 3}
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Bio Section */}
-        <div className="p-5" style={{ height: '30%', display: 'flex', flexDirection: 'column' }}>
+        {/* Bottom Section - Bio + Button */}
+        <div
+          className="p-4 flex flex-col gap-3"
+          style={{
+            backgroundColor: '#161B22',
+            borderRadius: '0 0 24px 24px',
+          }}
+        >
           {user.bio && (
             <p
-              className="text-sm mb-4 leading-relaxed"
+              className="text-sm leading-relaxed line-clamp-2"
               style={{
                 color: '#B4B4C8',
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
               }}
             >
               {user.bio}
             </p>
           )}
 
-          {/* BRANDBOOK: Primary Button */}
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            onClick={(e) => {
-              e.stopPropagation();
-              onLike();
-            }}
-            className="mt-auto"
-          >
-            👋 Say Hello
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDetails(true);
+              }}
+              className="flex-shrink-0"
+            >
+              📋 Подробнее
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              fullWidth
+              onClick={(e) => {
+                e.stopPropagation();
+                onLike();
+              }}
+            >
+              👋 Say Hello
+            </Button>
+          </div>
         </div>
 
         {/* Details Modal */}
