@@ -55,9 +55,21 @@ export default function ChatsPage() {
         </h1>
       </div>
 
-      {/* Chat List */}
-      <div style={{ padding: '0 16px' }}>
-        {conversations.map((conversation) => (
+      {/* Empty State */}
+      {conversations.length === 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>💬</div>
+          <h2 style={{ color: '#FFFFFF', fontSize: '18px', fontWeight: '600', margin: '0 0 8px 0' }}>
+            Пока нет чатов
+          </h2>
+          <p style={{ color: '#6E6E8F', fontSize: '14px', margin: 0 }}>
+            Найди людей с общими интересами и начни общение!
+          </p>
+        </div>
+      ) : (
+        /* Chat List */
+        <div style={{ padding: '0 16px' }}>
+          {conversations.map((conversation) => (
           <div
             key={conversation.match_id}
             onClick={() => navigate(`/chat/${conversation.match_id}`)}
@@ -113,8 +125,9 @@ export default function ChatsPage() {
               </div>
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <BottomNav />
     </div>
