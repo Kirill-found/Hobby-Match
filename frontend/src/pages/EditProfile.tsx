@@ -14,6 +14,14 @@ export default function EditProfile() {
   const [interests, setInterests] = useState<UserInterest[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
 
+  // Interest selector modal state
+  const [showInterestModal, setShowInterestModal] = useState(false);
+  const [level1Categories, setLevel1Categories] = useState<any[]>([]);
+  const [selectedLevel1, setSelectedLevel1] = useState<number | null>(null);
+  const [level2Categories, setLevel2Categories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [selectedSkillLevel, setSelectedSkillLevel] = useState<string | null>(null);
+
   // Form state
   const [formData, setFormData] = useState({
     first_name: '',
@@ -176,6 +184,75 @@ export default function EditProfile() {
     } catch (error) {
       console.error('Failed to reorder photos:', error);
       alert('Ошибка при изменении порядка фото');
+    }
+  };
+
+  // Interest management functions
+  const loadLevel1Categories = async () => {
+    try {
+      const categories = await interestsApi.getCategories(1);
+      setLevel1Categories(categories);
+    } catch (error) {
+      console.error('Failed to load level 1 categories:', error);
+    }
+  };
+
+  const loadLevel2Categories = async (parentId: number) => {
+    try {
+      const categories = await interestsApi.getCategories(2, parentId);
+      setLevel2Categories(categories);
+    } catch (error) {
+      console.error('Failed to load level 2 categories:', error);
+    }
+  };
+
+  const handleAddInterestClick = async () => {
+    setShowInterestModal(true);
+    await loadLevel1Categories();
+  };
+
+  const handleLevel1Select = async (categoryId: number) => {
+    setSelectedLevel1(categoryId);
+    setSelectedCategory(null);
+    setSelectedSkillLevel(null);
+    await loadLevel2Categories(categoryId);
+  };
+
+  const handleLevel2Select = (category: any) => {
+    setSelectedCategory(category);
+    setSelectedSkillLevel(null);
+  };
+
+  const handleAddInterest = async () => {
+    if (!selectedCategory || !selectedSkillLevel) {
+      alert('Выберите интерес и уровень навыка');
+      return;
+    }
+
+    try {
+      const newInterest = await interestsApi.addUserInterest(
+        selectedCategory.id,
+        selectedSkillLevel,
+        false
+      );
+      setInterests(prev => [...prev, newInterest]);
+      setShowInterestModal(false);
+      setSelectedLevel1(null);
+      setSelectedCategory(null);
+      setSelectedSkillLevel(null);
+    } catch (error: any) {
+      console.error('Failed to add interest:', error);
+      alert(error.response?.data?.detail || 'Ошибка при добавлении интереса');
+    }
+  };
+
+  const handleRemoveInterest = async (categoryId: number) => {
+    try {
+      await interestsApi.removeUserInterest(categoryId);
+      setInterests(prev => prev.filter(i => i.category_id !== categoryId));
+    } catch (error) {
+      console.error('Failed to remove interest:', error);
+      alert('Ошибка при удалении интереса');
     }
   };
 
@@ -595,13 +672,24 @@ export default function EditProfile() {
                 }}
               >
                 <span style={{ color: '#FFFFFF' }}>{interest.icon}</span>
-                <span
-                  className="text-sm"
-                  style={{ color: '#FFFFFF' }}
-                >
-                  {interest.name}
-                </span>
+                <div className="flex flex-col">
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: '#FFFFFF' }}
+                  >
+                    {interest.name}
+                  </span>
+                  {interest.skill_level && (
+                    <span
+                      className="text-xs"
+                      style={{ color: '#BFFF00' }}
+                    >
+                      {interest.skill_level}
+                    </span>
+                  )}
+                </div>
                 <button
+                  onClick={() => handleRemoveInterest(interest.category_id)}
                   className="ml-2"
                   style={{ color: '#6E6E8F' }}
                 >
@@ -614,7 +702,7 @@ export default function EditProfile() {
           </div>
 
           <Button
-            onClick={() => {/* TODO: Implement interest selector */}}
+            onClick={handleAddInterestClick}
             className="w-full py-3 rounded-xl font-semibold"
             style={{
               backgroundColor: '#0D1117',
@@ -769,6 +857,173 @@ export default function EditProfile() {
         </div>
 
       </div>
+
+      {/* Interest Selector Modal */}
+      {showInterestModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4 z-50"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          }}
+          onClick={() => setShowInterestModal(false)}
+        >
+          <div
+            className="rounded-3xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+            style={{
+              backgroundColor: '#161B22',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2
+                className="text-xl font-bold"
+                style={{
+                  color: '#FFFFFF',
+                  fontFamily: "'Space Grotesk', sans-serif",
+                }}
+              >
+                Добавить интерес
+              </h2>
+              <button
+                onClick={() => setShowInterestModal(false)}
+                style={{ color: '#6E6E8F' }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Step 1: Select Level 1 Category */}
+            {!selectedLevel1 && (
+              <div>
+                <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
+                  Выберите категорию:
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {level1Categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleLevel1Select(category.id)}
+                      className="p-4 rounded-xl flex flex-col items-center gap-2 hover:border-lime-400 transition-colors"
+                      style={{
+                        backgroundColor: '#0D1117',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      <span className="text-3xl">{category.icon}</span>
+                      <span className="text-sm font-medium" style={{ color: '#FFFFFF' }}>
+                        {category.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Select Level 2 Category */}
+            {selectedLevel1 && !selectedCategory && (
+              <div>
+                <button
+                  onClick={() => {
+                    setSelectedLevel1(null);
+                    setLevel2Categories([]);
+                  }}
+                  className="flex items-center gap-2 mb-4"
+                  style={{ color: '#BFFF00' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-sm font-medium">Назад</span>
+                </button>
+
+                <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
+                  Выберите интерес:
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {level2Categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleLevel2Select(category)}
+                      className="p-4 rounded-xl flex flex-col items-center gap-2 hover:border-lime-400 transition-colors"
+                      style={{
+                        backgroundColor: '#0D1117',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      <span className="text-3xl">{category.icon}</span>
+                      <span className="text-sm font-medium text-center" style={{ color: '#FFFFFF' }}>
+                        {category.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Select Skill Level */}
+            {selectedCategory && (
+              <div>
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSelectedSkillLevel(null);
+                  }}
+                  className="flex items-center gap-2 mb-4"
+                  style={{ color: '#BFFF00' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-sm font-medium">Назад</span>
+                </button>
+
+                <div className="mb-6 p-4 rounded-xl text-center" style={{ backgroundColor: '#0D1117' }}>
+                  <span className="text-3xl mb-2 block">{selectedCategory.icon}</span>
+                  <span className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
+                    {selectedCategory.name}
+                  </span>
+                </div>
+
+                <p className="text-sm mb-4" style={{ color: '#B4B4C8' }}>
+                  Выберите уровень навыка:
+                </p>
+                <div className="space-y-3">
+                  {['новичок', 'любитель', 'продвинутый', 'профессионал'].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setSelectedSkillLevel(level)}
+                      className="w-full p-4 rounded-xl font-medium transition-all"
+                      style={{
+                        backgroundColor: selectedSkillLevel === level ? '#BFFF00' : '#0D1117',
+                        border: selectedSkillLevel === level ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+                        color: selectedSkillLevel === level ? '#0D1117' : '#FFFFFF',
+                      }}
+                    >
+                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                    </button>
+                  ))}
+                </div>
+
+                {selectedSkillLevel && (
+                  <Button
+                    onClick={handleAddInterest}
+                    className="w-full mt-6 py-3 rounded-xl font-semibold"
+                    style={{
+                      backgroundColor: '#BFFF00',
+                      color: '#0D1117',
+                    }}
+                  >
+                    Добавить
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
