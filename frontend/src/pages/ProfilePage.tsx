@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { profileApi, type UserProfile } from '../api/profile';
 import { interestsApi, type UserInterest } from '../api/interests';
 import { getPhotoUrl } from '../api/client';
@@ -8,14 +8,16 @@ import Button from '../components/common/Button';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [interests, setInterests] = useState<UserInterest[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Reload profile when returning to this page
   useEffect(() => {
     loadProfile();
     loadInterests();
-  }, []);
+  }, [location.key]); // Reload when location changes
 
   const loadProfile = async () => {
     try {
