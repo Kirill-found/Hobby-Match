@@ -242,27 +242,28 @@ def migrate_add_requires_skill_level():
     One-time migration endpoint
     """
     from app.database import SessionLocal
+    from sqlalchemy import text
     import traceback
 
     db = SessionLocal()
     try:
         # Check if column already exists
-        check_sql = """
+        check_sql = text("""
         SELECT column_name
         FROM information_schema.columns
         WHERE table_name='interest_categories'
         AND column_name='requires_skill_level';
-        """
+        """)
         result = db.execute(check_sql).fetchone()
 
         if result:
             return {"message": "Column 'requires_skill_level' already exists"}
 
         # Add the column
-        alter_sql = """
+        alter_sql = text("""
         ALTER TABLE interest_categories
         ADD COLUMN requires_skill_level BOOLEAN NOT NULL DEFAULT TRUE;
-        """
+        """)
         db.execute(alter_sql)
         db.commit()
 
