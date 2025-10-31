@@ -8,8 +8,10 @@ export default function EditProfile() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [interests, setInterests] = useState<UserInterest[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -35,6 +37,7 @@ export default function EditProfile() {
     try {
       const data = await profileApi.getProfile();
       setProfile(data);
+      setPhotos(data.photos || []);
 
       // Populate form with existing data
       setFormData({
@@ -104,6 +107,75 @@ export default function EditProfile() {
         ? prev.availability.filter(s => s !== slot)
         : [...prev.availability, slot],
     }));
+  };
+
+  // Photo management functions
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Пожалуйста, выберите изображение');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Размер файла не должен превышать 10MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const response = await profileApi.uploadPhoto(file);
+      setPhotos(prev => [...prev, response.url]);
+
+      // Refresh profile to get updated photos
+      const updatedProfile = await profileApi.getProfile();
+      setProfile(updatedProfile);
+    } catch (error) {
+      console.error('Failed to upload photo:', error);
+      alert('Ошибка при загрузке фото');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handlePhotoDelete = async (photoUrl: string) => {
+    if (!confirm('Удалить эту фотографию?')) return;
+
+    try {
+      await profileApi.deletePhoto(photoUrl);
+      setPhotos(prev => prev.filter(url => url !== photoUrl));
+
+      // Update profile state
+      if (profile) {
+        setProfile({
+          ...profile,
+          photos: profile.photos.filter(url => url !== photoUrl),
+        });
+      }
+    } catch (error) {
+      console.error('Failed to delete photo:', error);
+      alert('Ошибка при удалении фото');
+    }
+  };
+
+  const handlePhotoReorder = (fromIndex: number, toIndex: number) => {
+    const newPhotos = [...photos];
+    const [movedPhoto] = newPhotos.splice(fromIndex, 1);
+    newPhotos.splice(toIndex, 0, movedPhoto);
+    setPhotos(newPhotos);
+  };
+
+  const savePhotoOrder = async () => {
+    try {
+      await profileApi.reorderPhotos(photos);
+    } catch (error) {
+      console.error('Failed to reorder photos:', error);
+      alert('Ошибка при изменении порядка фото');
+    }
   };
 
   if (loading) {
@@ -366,10 +438,10 @@ export default function EditProfile() {
           </h2>
 
           <div className="grid grid-cols-3 gap-3">
-            {profile?.photos?.map((photo, index) => (
+            {photos.map((photo, index) => (
               <div
-                key={index}
-                className="aspect-square rounded-2xl overflow-hidden relative"
+                key={photo}
+                className="aspect-square rounded-2xl overflow-hidden relative group"
                 style={{
                   backgroundColor: '#0D1117',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -380,6 +452,8 @@ export default function EditProfile() {
                   alt={`Photo ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
+
+                {/* Main photo badge */}
                 {index === 0 && (
                   <div
                     className="absolute top-2 left-2 px-2 py-1 rounded-lg text-xs font-semibold"
@@ -391,28 +465,95 @@ export default function EditProfile() {
                     Главное
                   </div>
                 )}
+
+                {/* Delete button */}
+                <button
+                  onClick={() => handlePhotoDelete(photo)}
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{
+                    backgroundColor: 'rgba(13, 17, 23, 0.9)',
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 4L12 12M4 12L12 4" stroke="#FF4444" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+
+                {/* Reorder buttons */}
+                <div className="absolute bottom-2 left-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {index > 0 && (
+                    <button
+                      onClick={() => {
+                        handlePhotoReorder(index, index - 1);
+                        savePhotoOrder();
+                      }}
+                      className="flex-1 py-1 rounded-lg text-xs font-semibold"
+                      style={{
+                        backgroundColor: 'rgba(13, 17, 23, 0.9)',
+                        color: '#BFFF00',
+                      }}
+                    >
+                      ←
+                    </button>
+                  )}
+                  {index < photos.length - 1 && (
+                    <button
+                      onClick={() => {
+                        handlePhotoReorder(index, index + 1);
+                        savePhotoOrder();
+                      }}
+                      className="flex-1 py-1 rounded-lg text-xs font-semibold"
+                      style={{
+                        backgroundColor: 'rgba(13, 17, 23, 0.9)',
+                        color: '#BFFF00',
+                      }}
+                    >
+                      →
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
 
             {/* Add Photo Button */}
-            {(!profile?.photos || profile.photos.length < 6) && (
-              <button
-                className="aspect-square rounded-2xl flex flex-col items-center justify-center gap-2"
+            {photos.length < 6 && (
+              <label
+                className="aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-lime-400 transition-colors"
                 style={{
                   backgroundColor: '#0D1117',
-                  border: '2px dashed rgba(191, 255, 0, 0.3)',
+                  border: uploading ? '2px solid #BFFF00' : '2px dashed rgba(191, 255, 0, 0.3)',
                 }}
               >
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <path d="M16 8V24M8 16H24" stroke="#BFFF00" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                <span
-                  className="text-xs font-semibold"
-                  style={{ color: '#BFFF00' }}
-                >
-                  Добавить
-                </span>
-              </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                {uploading ? (
+                  <>
+                    <div className="w-8 h-8 border-4 rounded-full animate-spin"
+                      style={{
+                        borderColor: '#BFFF00',
+                        borderTopColor: 'transparent',
+                      }}
+                    />
+                    <span className="text-xs font-semibold" style={{ color: '#BFFF00' }}>
+                      Загрузка...
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                      <path d="M16 8V24M8 16H24" stroke="#BFFF00" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    <span className="text-xs font-semibold" style={{ color: '#BFFF00' }}>
+                      Добавить
+                    </span>
+                  </>
+                )}
+              </label>
             )}
           </div>
 
@@ -420,7 +561,7 @@ export default function EditProfile() {
             className="text-xs mt-3"
             style={{ color: '#6E6E8F' }}
           >
-            Первая фотография будет главной. Максимум 6 фото.
+            Первая фотография будет главной. Максимум 6 фото. Нажмите на фото чтобы увидеть кнопки управления.
           </p>
         </div>
 
