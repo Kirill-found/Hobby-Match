@@ -235,6 +235,45 @@ def reset_onboarding():
         db.close()
 
 
+@app.get("/migrate-add-requires-skill-level")
+def migrate_add_requires_skill_level():
+    """
+    Add requires_skill_level column to interest_categories table
+    One-time migration endpoint
+    """
+    from app.database import SessionLocal
+    import traceback
+
+    db = SessionLocal()
+    try:
+        # Check if column already exists
+        check_sql = """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name='interest_categories'
+        AND column_name='requires_skill_level';
+        """
+        result = db.execute(check_sql).fetchone()
+
+        if result:
+            return {"message": "Column 'requires_skill_level' already exists"}
+
+        # Add the column
+        alter_sql = """
+        ALTER TABLE interest_categories
+        ADD COLUMN requires_skill_level BOOLEAN NOT NULL DEFAULT TRUE;
+        """
+        db.execute(alter_sql)
+        db.commit()
+
+        return {"message": "Successfully added 'requires_skill_level' column to interest_categories"}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e), "traceback": traceback.format_exc()}
+    finally:
+        db.close()
+
+
 @app.get("/reset-interests")
 def reset_interests_endpoint():
     """
