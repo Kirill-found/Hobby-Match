@@ -13,6 +13,7 @@ import LikesPage from './pages/LikesPage';
 import ChatsPage from './pages/ChatsPage';
 import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfile from './pages/EditProfile';
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,7 @@ function App() {
             <Route path="/chats" element={<ChatsPage />} />
             <Route path="/chat/:matchId" element={<ChatPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
