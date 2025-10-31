@@ -16,6 +16,7 @@ export interface ConversationPreview {
   partner_id: number;
   partner_name: string;
   partner_photo: string | null;
+  partner_age: number | null;
   last_message: string | null;
   last_message_time: string | null;
   unread_count: number;

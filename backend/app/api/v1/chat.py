@@ -40,6 +40,7 @@ class ConversationPreview(BaseModel):
     partner_id: int
     partner_name: str
     partner_photo: Optional[str]
+    partner_age: Optional[int]
     last_message: Optional[str]
     last_message_time: Optional[datetime]
     unread_count: int
@@ -88,11 +89,19 @@ def get_conversations(
             )
         ).count()
 
+        # Calculate partner age
+        partner_age = None
+        if partner.birth_date:
+            from datetime import date
+            today = date.today()
+            partner_age = today.year - partner.birth_date.year - ((today.month, today.day) < (partner.birth_date.month, partner.birth_date.day))
+
         conversation = ConversationPreview(
             match_id=match.id,
             partner_id=partner.id,
             partner_name=partner.first_name,
             partner_photo=partner.photos[0] if partner.photos and len(partner.photos) > 0 else None,
+            partner_age=partner_age,
             last_message=last_message.text if last_message else None,
             last_message_time=last_message.created_at if last_message else match.matched_at,
             unread_count=unread_count,
