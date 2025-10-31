@@ -8,6 +8,7 @@ import { interestsApi } from '../api/interests';
 import type { InterestCategory } from '../api/interests';
 import BottomNav from '../components/Layout/BottomNav';
 import FilterModal from '../components/FilterModal';
+import { Button } from '../components/common';
 
 export default function DiscoveryPage() {
   const navigate = useNavigate();
@@ -26,14 +27,12 @@ export default function DiscoveryPage() {
     selectedInterests: [],
   });
 
-  // Redirect to onboarding if not completed
   useEffect(() => {
     if (user && !user.onboarding_completed) {
       navigate('/', { replace: true });
     }
   }, [user, navigate]);
 
-  // Load discovery users on mount
   useEffect(() => {
     loadUsers();
     loadInterests();
@@ -56,7 +55,6 @@ export default function DiscoveryPage() {
 
   const loadInterests = async () => {
     try {
-      // Load all interest categories for filter
       const categories = await interestsApi.getCategories();
       setInterests(categories);
     } catch (err) {
@@ -86,7 +84,6 @@ export default function DiscoveryPage() {
       nextCard();
     } catch (err: any) {
       console.error('Error swiping:', err);
-      // Показываем карточку дальше даже если была ошибка
       nextCard();
     }
   };
@@ -100,7 +97,6 @@ export default function DiscoveryPage() {
       nextCard();
     } catch (err: any) {
       console.error('Error swiping:', err);
-      // Показываем карточку дальше даже если была ошибка
       nextCard();
     }
   };
@@ -109,66 +105,83 @@ export default function DiscoveryPage() {
     if (currentIndex < users.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      // Больше нет карточек
       setUsers([]);
     }
   };
 
-  // Loading state
+  // BRANDBOOK: Loading state
   if (loading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#0F0F0F' }}
-      >
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D1117' }}>
         <div className="text-center px-6">
-          <div className="animate-spin text-6xl mb-4">⏳</div>
-          <p className="text-gray-400">Загружаем пользователей...</p>
+          <div
+            className="w-16 h-16 mx-auto mb-4 rounded-full"
+            style={{
+              background: 'linear-gradient(135deg, #BFFF00 0%, #A3E000 100%)',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+          <p className="text-base font-medium" style={{ color: '#B4B4C8' }}>
+            Загружаем профили...
+          </p>
         </div>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
 
-  // Error state
+  // BRANDBOOK: Error state
   if (error) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#0F0F0F' }}
-      >
-        <div className="text-center px-6">
-          <div className="text-7xl mb-6">😕</div>
-          <h2 className="text-2xl font-bold text-white mb-3">
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: '#0D1117' }}>
+        <div className="text-center max-w-sm">
+          <div className="text-6xl mb-4">😕</div>
+          <h2
+            className="text-2xl font-bold mb-3"
+            style={{
+              color: '#FFF',
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
             Что-то пошло не так
           </h2>
-          <p className="text-gray-400 mb-8">{error}</p>
-          <button
-            onClick={() => loadUsers()}
-            className="tinder-button"
-          >
+          <p className="text-base mb-6" style={{ color: '#B4B4C8' }}>
+            {error}
+          </p>
+          <Button variant="primary" size="lg" fullWidth onClick={() => loadUsers()}>
             Попробовать снова
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
-  // No more users
+  // BRANDBOOK: No more users state
   if (!currentUser) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#0F0F0F' }}
-      >
-        <div className="text-center px-6">
-          <div className="text-7xl mb-6">🎉</div>
-          <h2 className="text-2xl font-bold text-white mb-3">
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: '#0D1117' }}>
+        <div className="text-center max-w-sm">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2
+            className="text-2xl font-bold mb-3"
+            style={{
+              color: '#FFF',
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
             Вы посмотрели всех!
           </h2>
-          <p className="text-gray-400 mb-8">
+          <p className="text-base mb-6" style={{ color: '#B4B4C8' }}>
             Новые пользователи появятся совсем скоро
           </p>
-          <button
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
             onClick={async () => {
               try {
                 const result = await discoveryApi.resetSwipes();
@@ -179,10 +192,9 @@ export default function DiscoveryPage() {
                 alert('Не удалось сбросить свайпы');
               }
             }}
-            className="tinder-button"
           >
             Обновить ленту
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -190,75 +202,69 @@ export default function DiscoveryPage() {
 
   return (
     <div
-      className="min-h-screen"
-      style={{ backgroundColor: '#0F0F0F', paddingTop: '72px', paddingBottom: '88px' }}
+      className="min-h-screen pb-24"
+      style={{
+        backgroundColor: '#0D1117',
+        paddingTop: '72px',
+      }}
     >
-      {/* Header - Match Style */}
+      {/* BRANDBOOK: Header - Deep Space with Lime accents */}
       <div
+        className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-16"
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '60px',
-          backgroundColor: '#1a1a2e',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-          zIndex: 30,
+          backgroundColor: '#161B22',
+          borderBottom: '1px solid rgba(191, 255, 0, 0.1)',
         }}
       >
-        {/* Left: Avatar */}
+        {/* Avatar */}
         <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold cursor-pointer"
           style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            backgroundColor: '#667eea',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-            cursor: 'pointer',
+            background: 'linear-gradient(135deg, #BFFF00 0%, #A3E000 100%)',
+            color: '#0D1117',
+            boxShadow: '0 4px 12px rgba(191, 255, 0, 0.25)',
+            transition: 'transform 0.2s ease',
           }}
           onClick={() => navigate('/profile')}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         >
           {user?.first_name ? user.first_name[0].toUpperCase() : '👤'}
         </div>
 
-        {/* Center: Match Title */}
+        {/* Title - BRANDBOOK: Space Grotesk */}
         <h1
+          className="text-xl font-bold"
           style={{
-            fontSize: '20px',
-            fontWeight: 'bold',
-            color: '#FFFFFF',
+            color: '#FFF',
+            fontFamily: "'Space Grotesk', sans-serif",
           }}
         >
-          Match
+          Discovery
         </h1>
 
-        {/* Right: Filter Button */}
+        {/* Filter Button */}
         <button
           onClick={() => setShowFilterModal(true)}
+          className="w-10 h-10 rounded-full flex items-center justify-center"
           style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            backgroundColor: '#2A2A2A',
-            border: '1px solid #3A3A3A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            backgroundColor: '#161B22',
+            border: '1px solid rgba(191, 255, 0, 0.2)',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
           }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#1F242C';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(191, 255, 0, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#161B22';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#BFFF00" strokeWidth="1.5">
             <path
-              d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V19L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z"
-              stroke="#FFFFFF"
-              strokeWidth="2"
+              d="M3 4h18M3 4v2.586a1 1 0 00.293.707l6.414 6.414a1 1 0 01.293.707V19l4 2v-6.586a1 1 0 01.293-.707l6.414-6.414A1 1 0 0021 6.586V4M3 4h18"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -266,15 +272,34 @@ export default function DiscoveryPage() {
         </button>
       </div>
 
-      {/* Match Notification */}
+      {/* BRANDBOOK: Match Notification */}
       {showMatchNotification && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 max-w-sm mx-4 text-center">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            animation: 'fadeIn 0.3s ease-out',
+          }}
+        >
+          <div
+            className="text-center p-8 rounded-3xl max-w-sm"
+            style={{
+              backgroundColor: '#161B22',
+              boxShadow: '0 20px 60px rgba(191, 255, 0, 0.3)',
+              animation: 'scaleIn 0.4s ease-out',
+            }}
+          >
             <div className="text-7xl mb-4">🤝</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2
+              className="text-2xl font-bold mb-2"
+              style={{
+                color: '#FFF',
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
+            >
               Взаимный интерес!
             </h2>
-            <p className="text-gray-500">
+            <p className="text-base" style={{ color: '#B4B4C8' }}>
               Вы оба хотите заниматься хобби вместе. Начните общение!
             </p>
           </div>
@@ -283,13 +308,8 @@ export default function DiscoveryPage() {
 
       {/* Card Container */}
       <div className="max-w-md mx-auto px-4">
-        <div className="fade-in" key={currentUser.user_id}>
-          <UserCard
-            key={currentUser.user_id}
-            user={currentUser}
-            onLike={handleLike}
-            onDislike={handleDislike}
-          />
+        <div key={currentUser.user_id} style={{ animation: 'fadeIn 0.3s ease-out' }}>
+          <UserCard user={currentUser} onLike={handleLike} onDislike={handleDislike} />
         </div>
       </div>
 
@@ -301,8 +321,19 @@ export default function DiscoveryPage() {
         onClose={() => setShowFilterModal(false)}
         onApply={handleApplyFilters}
         currentFilters={filters}
-        interests={interests.map(cat => ({ id: cat.id, name: cat.name, icon: cat.icon || '🎯' }))}
+        interests={interests.map((cat) => ({ id: cat.id, name: cat.name, icon: cat.icon || '🎯' }))}
       />
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

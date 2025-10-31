@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import type { DiscoveryUser } from '../api/discovery';
+import { Badge, Button } from './common';
 
 interface UserCardProps {
   user: DiscoveryUser;
@@ -9,55 +10,40 @@ interface UserCardProps {
 
 export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
   const [showDetails, setShowDetails] = useState(false);
-
-  // Swipe state
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Touch/Mouse event handlers for swipe
   const handleDragStart = (clientX: number, clientY: number) => {
-    if (showDetails) return; // Don't swipe when details are open
+    if (showDetails) return;
     setIsDragging(true);
     setStartPos({ x: clientX, y: clientY });
   };
 
   const handleDragMove = (clientX: number, clientY: number) => {
     if (!isDragging || showDetails) return;
-
     const deltaX = clientX - startPos.x;
     const deltaY = clientY - startPos.y;
-
-    // Only allow horizontal swipes (ignore if vertical swipe is dominant)
     if (Math.abs(deltaY) < Math.abs(deltaX)) {
-      setDragOffset({ x: deltaX, y: deltaY * 0.3 }); // Reduce vertical movement
+      setDragOffset({ x: deltaX, y: deltaY * 0.3 });
     }
   };
 
   const handleDragEnd = () => {
     if (!isDragging || showDetails) return;
     setIsDragging(false);
-
-    const swipeThreshold = 100; // pixels to trigger swipe
+    const swipeThreshold = 100;
 
     if (Math.abs(dragOffset.x) > swipeThreshold) {
-      // Trigger swipe action
       if (dragOffset.x > 0) {
-        // Swiped right - Like
         animateSwipeOut('right');
-        setTimeout(() => {
-          onLike();
-        }, 300);
+        setTimeout(() => onLike(), 300);
       } else {
-        // Swiped left - Dislike
         animateSwipeOut('left');
-        setTimeout(() => {
-          onDislike();
-        }, 300);
+        setTimeout(() => onDislike(), 300);
       }
     } else {
-      // Return to center
       resetCard();
     }
   };
@@ -78,26 +64,48 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
     }
   };
 
-  // Calculate rotation based on drag distance
   const getRotation = () => {
-    const maxRotation = 15; // degrees
+    const maxRotation = 15;
     const rotation = (dragOffset.x / 300) * maxRotation;
     return Math.max(-maxRotation, Math.min(maxRotation, rotation));
   };
 
-  // Calculate opacity for like/dislike indicators
   const getLikeOpacity = () => Math.max(0, Math.min(1, dragOffset.x / 100));
   const getDislikeOpacity = () => Math.max(0, Math.min(1, -dragOffset.x / 100));
 
-  // Color mapping for interests
-  const getInterestColor = (index: number) => {
-    const colors = ['#8B5CF6', '#3B82F6', '#F97316']; // purple, blue, orange
-    return colors[index % colors.length];
+  // BRANDBOOK: Interest category colors mapping
+  const getCategoryColor = (interestName: string): any => {
+    const lowerName = interestName.toLowerCase();
+
+    // Fitness (Hot Pink #FF006B)
+    if (lowerName.includes('спорт') || lowerName.includes('фитнес') || lowerName.includes('бег') ||
+        lowerName.includes('йог') || lowerName.includes('теннис') || lowerName.includes('футбол') ||
+        lowerName.includes('баскетбол') || lowerName.includes('волейбол') || lowerName.includes('бадминтон') ||
+        lowerName.includes('плаван') || lowerName.includes('тренаж') || lowerName.includes('силов')) return 'fitness';
+
+    // Travel (Cyan #00D9FF)
+    if (lowerName.includes('путешеств') || lowerName.includes('туризм') || lowerName.includes('походы')) return 'travel';
+
+    // Creative (Purple #9B51E0)
+    if (lowerName.includes('творч') || lowerName.includes('искусств') || lowerName.includes('рисован') ||
+        lowerName.includes('музык') || lowerName.includes('фото') || lowerName.includes('танц')) return 'creative';
+
+    // Gaming (Amber #F59E0B)
+    if (lowerName.includes('игр') || lowerName.includes('киберспорт') || lowerName.includes('видеоигр')) return 'gaming';
+
+    // Learning (Blue #3B82F6)
+    if (lowerName.includes('обуч') || lowerName.includes('язык') || lowerName.includes('програм') ||
+        lowerName.includes('наук') || lowerName.includes('книг')) return 'learning';
+
+    // Food (Red #EF4444)
+    if (lowerName.includes('еда') || lowerName.includes('кулинар') || lowerName.includes('готов')) return 'food';
+
+    return 'default';
   };
 
   return (
     <div className="relative w-full h-full">
-      {/* Main Card - Match/Twinby Style with Neon Border */}
+      {/* Main Card */}
       <div
         ref={cardRef}
         className="relative w-full overflow-hidden"
@@ -105,16 +113,8 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
           height: 'calc(100vh - 220px)',
           maxHeight: '650px',
           borderRadius: '24px',
-          backgroundColor: '#1A1A1A',
-          border: '2px solid transparent',
-          backgroundImage: 'linear-gradient(#1A1A1A, #1A1A1A), linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          backgroundOrigin: 'border-box',
-          backgroundClip: 'padding-box, border-box',
-          boxShadow: `
-            0 0 20px rgba(102, 126, 234, 0.3),
-            0 0 40px rgba(118, 75, 162, 0.2),
-            inset 0 0 60px rgba(102, 126, 234, 0.1)
-          `,
+          backgroundColor: '#161B22',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
           transform: isDragging
             ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) rotate(${getRotation()}deg)`
             : 'translateX(0) translateY(0) rotate(0deg)',
@@ -146,13 +146,11 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             left: '40px',
             transform: 'translateY(-50%) rotate(-20deg)',
             fontSize: '80px',
-            fontWeight: 'bold',
-            color: '#00FF00',
-            textShadow: '0 0 20px rgba(0, 255, 0, 0.5)',
             opacity: getLikeOpacity(),
             pointerEvents: 'none',
             zIndex: 20,
             transition: 'opacity 0.1s ease-out',
+            filter: 'drop-shadow(0 0 20px rgba(191, 255, 0, 0.6))',
           }}
         >
           ❤️
@@ -166,13 +164,11 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             right: '40px',
             transform: 'translateY(-50%) rotate(20deg)',
             fontSize: '80px',
-            fontWeight: 'bold',
-            color: '#FF0000',
-            textShadow: '0 0 20px rgba(255, 0, 0, 0.5)',
             opacity: getDislikeOpacity(),
             pointerEvents: 'none',
             zIndex: 20,
             transition: 'opacity 0.1s ease-out',
+            filter: 'drop-shadow(0 0 20px rgba(255, 59, 48, 0.6))',
           }}
         >
           ✖️
@@ -185,57 +181,53 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               src={user.photos[0]}
               alt={user.name}
               className="w-full h-full object-cover"
-              style={{ borderRadius: '20px 20px 0 0' }}
+              style={{ borderRadius: '24px 24px 0 0' }}
             />
           ) : (
             <div
               className="w-full h-full flex items-center justify-center text-9xl"
               style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '20px 20px 0 0',
+                background: 'linear-gradient(135deg, #BFFF00 0%, #A3E000 100%)',
+                borderRadius: '24px 24px 0 0',
               }}
             >
               👤
             </div>
           )}
 
-          {/* Gradient overlay at bottom */}
+          {/* BRANDBOOK: Gradient overlay для читаемости */}
           <div
             style={{
               position: 'absolute',
               bottom: 0,
               left: 0,
               right: 0,
-              height: '40%',
-              background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+              height: '50%',
+              background: 'linear-gradient(to top, rgba(13, 17, 23, 0.95) 0%, transparent 100%)',
             }}
           />
 
-          {/* Close button */}
+          {/* Info button */}
           <button
-            onClick={() => setShowDetails(!showDetails)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDetails(!showDetails);
+            }}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center"
             style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              backgroundColor: 'rgba(22, 27, 34, 0.8)',
               backdropFilter: 'blur(10px)',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFFFFF',
+              border: '1px solid rgba(191, 255, 0, 0.3)',
+              color: '#FFF',
               fontSize: '20px',
               cursor: 'pointer',
+              transition: 'all 0.2s ease',
             }}
           >
-            ✕
+            ℹ️
           </button>
 
-          {/* User Info - Bottom Left on Photo */}
+          {/* User Info Overlay */}
           <div
             style={{
               position: 'absolute',
@@ -244,71 +236,59 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               right: '20px',
             }}
           >
-            {/* Name and Age */}
+            {/* BRANDBOOK: Space Grotesk for heading */}
             <h2
+              className="text-3xl font-bold mb-1"
               style={{
-                fontSize: '32px',
-                fontWeight: '700',
-                color: '#FFFFFF',
-                marginBottom: '4px',
+                color: '#FFF',
+                fontFamily: "'Space Grotesk', sans-serif",
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
               }}
             >
               {user.name}
-              {user.age && (
-                <span style={{ fontWeight: '700' }}>, {user.age}</span>
-              )}
+              {user.age && <span>, {user.age}</span>}
             </h2>
 
-            {/* Location */}
             {user.city && (
               <div
+                className="flex items-center gap-1 mb-3"
                 style={{
-                  color: '#FFFFFF',
-                  fontSize: '16px',
-                  fontWeight: '400',
-                  opacity: 0.9,
-                  marginBottom: '12px',
+                  color: '#B4B4C8',
+                  fontSize: '15px',
                 }}
               >
-                {user.city}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="9" r="2.5"/>
+                </svg>
+                <span>{user.city}</span>
               </div>
             )}
 
-            {/* Interest Badges - Colorful */}
+            {/* Interests - BRANDBOOK badges */}
             {user.interests && user.interests.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="flex flex-wrap gap-2">
                 {user.interests.slice(0, 3).map((interest, index) => (
-                  <div
+                  <Badge
                     key={index}
-                    style={{
-                      backgroundColor: getInterestColor(index),
-                      padding: '6px 14px',
-                      borderRadius: '16px',
-                      color: '#FFFFFF',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
+                    category={getCategoryColor(interest.name || '')}
                   >
-                    {interest.name}
-                  </div>
+                    {interest.icon && <span>{interest.icon}</span>}
+                    <span>{interest.name}</span>
+                  </Badge>
                 ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Bio Section - White area under photo */}
-        <div style={{ padding: '20px', height: '30%', display: 'flex', flexDirection: 'column' }}>
+        {/* Bio Section */}
+        <div className="p-5" style={{ height: '30%', display: 'flex', flexDirection: 'column' }}>
           {user.bio && (
             <p
+              className="text-sm mb-4 leading-relaxed"
               style={{
-                color: '#FFFFFF',
-                fontSize: '15px',
-                lineHeight: '1.5',
-                marginBottom: '16px',
+                color: '#B4B4C8',
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
@@ -319,75 +299,41 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
             </p>
           )}
 
-          {/* Say Hello Button */}
-          <button
-            onClick={onLike}
-            style={{
-              width: '100%',
-              height: '56px',
-              borderRadius: '28px',
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              border: 'none',
-              color: '#FFFFFF',
-              fontSize: '18px',
-              fontWeight: '700',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
-              marginTop: 'auto',
-              transition: 'transform 0.2s ease, filter 0.2s ease',
+          {/* BRANDBOOK: Primary Button */}
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike();
             }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.transform = 'scale(0.98)';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.filter = 'brightness(1.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.filter = 'brightness(1)';
-            }}
+            className="mt-auto"
           >
-            <span>👋</span>
-            <span>Say Hello</span>
-          </button>
+            👋 Say Hello
+          </Button>
         </div>
 
-        {/* Details Modal - Swipe Up */}
+        {/* Details Modal */}
         {showDetails && (
           <div
             onClick={() => setShowDetails(false)}
+            className="absolute inset-0 overflow-y-auto p-6"
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.95)',
+              backgroundColor: 'rgba(13, 17, 23, 0.98)',
+              backdropFilter: 'blur(10px)',
               borderRadius: '24px',
-              overflowY: 'auto',
-              padding: '24px',
-              zIndex: 10,
-              animation: 'slideUp 0.3s ease-out',
+              zIndex: 30,
             }}
           >
-            {/* Close button */}
-            <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+            <div className="text-right mb-4">
               <button
                 onClick={() => setShowDetails(false)}
+                className="text-3xl"
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#FFFFFF',
-                  fontSize: '24px',
+                  color: '#B4B4C8',
                   cursor: 'pointer',
                 }}
               >
@@ -395,117 +341,60 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
               </button>
             </div>
 
-            {/* Small photo */}
             {user.photos && user.photos.length > 0 && (
               <img
                 src={user.photos[0]}
                 alt={user.name}
-                style={{
-                  width: '120px',
-                  height: '120px',
-                  borderRadius: '16px',
-                  objectFit: 'cover',
-                  marginBottom: '20px',
-                }}
+                className="w-32 h-32 rounded-2xl object-cover mb-5"
               />
             )}
 
-            {/* Name */}
-            <h2
-              style={{
-                fontSize: '28px',
-                fontWeight: 'bold',
-                color: '#FFFFFF',
-                marginBottom: '8px',
-              }}
-            >
+            <h2 className="text-3xl font-bold mb-2" style={{ color: '#FFF', fontFamily: "'Space Grotesk', sans-serif" }}>
               {user.name}, {user.age}
             </h2>
 
-            {/* Location */}
             {user.city && (
-              <p style={{ color: '#999999', marginBottom: '24px' }}>
-                📍 {user.city}
+              <p className="flex items-center gap-1 mb-6" style={{ color: '#B4B4C8' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="9" r="2.5"/>
+                </svg>
+                {user.city}
               </p>
             )}
 
-            {/* About section */}
             {user.bio && (
-              <div style={{ marginBottom: '24px' }}>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    marginBottom: '12px',
-                  }}
-                >
-                  О себе
-                </h3>
-                <p
-                  style={{
-                    color: '#CCCCCC',
-                    lineHeight: '1.6',
-                    fontSize: '15px',
-                  }}
-                >
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#FFF' }}>О себе</h3>
+                <p className="text-base leading-relaxed" style={{ color: '#B4B4C8' }}>
                   {user.bio}
                 </p>
               </div>
             )}
 
-            {/* Interests */}
             {user.interests && user.interests.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    marginBottom: '12px',
-                  }}
-                >
-                  Интересы
-                </h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#FFF' }}>Интересы</h3>
+                <div className="flex flex-wrap gap-2">
                   {user.interests.map((interest, index) => (
-                    <span
+                    <Badge
                       key={index}
-                      style={{
-                        backgroundColor: '#2A2A2A',
-                        color: '#FFFFFF',
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        fontSize: '14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
+                      category={getCategoryColor(interest.name || '')}
                     >
-                      <span>{interest.icon}</span>
+                      {interest.icon && <span>{interest.icon}</span>}
                       <span>{interest.name}</span>
-                    </span>
+                    </Badge>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Reliability */}
             {user.reliability_score !== undefined && user.reliability_score > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <h3
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    marginBottom: '12px',
-                  }}
-                >
-                  Надежность
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '24px' }}>⭐</span>
-                  <span style={{ color: '#FFFFFF', fontSize: '20px', fontWeight: '600' }}>
+              <div>
+                <h3 className="text-lg font-bold mb-3" style={{ color: '#FFF' }}>Надежность</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⭐</span>
+                  <span className="text-xl font-bold" style={{ color: '#BFFF00' }}>
                     {user.reliability_score.toFixed(1)}
                   </span>
                 </div>
@@ -514,19 +403,6 @@ export default function UserCard({ user, onLike, onDislike }: UserCardProps) {
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes slideUp {
-          from {
-            transform: translateY(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 }
