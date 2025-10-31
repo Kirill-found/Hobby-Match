@@ -129,7 +129,7 @@ export default function EditProfile() {
     setUploading(true);
     try {
       const response = await profileApi.uploadPhoto(file);
-      setPhotos(prev => [...prev, response.url]);
+      setPhotos(prev => [...prev, response.photo_url]);
 
       // Refresh profile to get updated photos
       const updatedProfile = await profileApi.getProfile();

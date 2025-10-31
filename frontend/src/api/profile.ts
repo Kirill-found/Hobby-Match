@@ -56,10 +56,10 @@ export const profileApi = {
     return response.data;
   },
 
-  uploadPhoto: async (file: File): Promise<{ url: string }> => {
+  uploadPhoto: async (file: File): Promise<{ photo_url: string }> => {
     const formData = new FormData();
-    formData.append('file', file);
-    const response = await apiClient.post<{ url: string }>('/users/photos', formData, {
+    formData.append('photo', file);
+    const response = await apiClient.post<{ photo_url: string }>('/users/photos', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
